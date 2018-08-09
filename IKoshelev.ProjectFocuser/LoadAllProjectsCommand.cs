@@ -111,18 +111,48 @@ namespace IKoshelev.ProjectFocuser
 
             //UnloadFirstSolutionProject();
 
+            var dte2 = dte as EnvDTE80.DTE2;
+            foreach(Project project in dte2.Solution.Projects)
+            {
+                var nam = project.Name;
+                var uniquNam = project.UniqueName;
+                   var projObk = project.Object;
+                
+                if (projObk != null)
+                {
+                    var vsproject = projObk as VSLangProj.VSProject;
+
+                    foreach (VSLangProj.Reference reference in vsproject.References)
+                    {
+                        if (reference.SourceProject == null)
+                        {
+
+                        }
+                        else
+                        {
+                            var desc = reference.Description;
+                            var identity = reference.Identity;
+                            var name = reference.Name;
+                            var path = reference.Path;
+                            var sourceProj = reference.SourceProject;
+                            var sourceName = sourceProj.Name;
+                        }
+                    }
+                }
+            }
+
+
             for (int count = 1; count <= dte.Solution.Projects.Count; count++)
             {
                 IVsHierarchy selectedHierarchy;
 
-                var proj = dte.Solution.Projects.Item(count);
+                EnvDTE.Project proj = dte.Solution.Projects.Item(count);
 
                 if (proj.IsUnloaded() == false)
                 {
                     continue;
                 }
 
-                //proj.DTE.ExecuteCommand("Project.UnloadProject", "");
                 ErrorHandler.ThrowOnFailure(solutionService.GetProjectOfUniqueName(proj.UniqueName, out selectedHierarchy));
 
                 var guid = GetProjectGuid(selectedHierarchy);
