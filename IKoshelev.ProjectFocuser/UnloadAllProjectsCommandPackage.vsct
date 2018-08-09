@@ -59,6 +59,13 @@
           <ButtonText>Unload all projects</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidLoadAllProjectsCommandPackageCmdSet" id="LoadAllProjectsCommandId" priority="0x0200" type="Button">
+        <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
+        <Icon guid="guidImages" id="bmpPic2" />
+        <Strings>
+          <ButtonText>Load all projects</ButtonText>
+        </Strings>
+      </Button>
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -80,6 +87,11 @@
     <GuidSymbol name="guidUnloadAllProjectsCommandPackageCmdSet" value="{b97309f8-343e-445a-adaa-16db2957a3b2}">
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="UnloadAllProjectsCommandId" value="0x0100" />
+    </GuidSymbol>
+
+    <GuidSymbol name="guidLoadAllProjectsCommandPackageCmdSet" value="{82cb990d-f919-4fbe-8af5-f325882b6bed}">
+      <IDSymbol name="MyMenuGroup" value="0x1020" />
+      <IDSymbol name="LoadAllProjectsCommandId" value="0x0200" />
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{ff287d7c-84d4-4f0e-b900-e1fcaa51f725}" >

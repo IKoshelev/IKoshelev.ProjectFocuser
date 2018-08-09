@@ -63,6 +63,7 @@ namespace IKoshelev.ProjectFocuser
         protected override void Initialize()
         {
             UnloadAllProjectsCommand.Initialize(this);
+            LoadAllProjectsCommand.Initialize(this);
             base.Initialize();
         }
 
