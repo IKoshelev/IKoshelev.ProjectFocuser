@@ -97,34 +97,40 @@ namespace IKoshelev.ProjectFocuser
         {
             var componentModel = Package.GetGlobalService(typeof(SComponentModel)) as IComponentModel;
             var workspace = componentModel.GetService<VisualStudioWorkspace>();
-            var projNumber = 1;
-            var proj = workspace.CurrentSolution.Projects.ElementAt(projNumber);
-            var references = proj.ProjectReferences.ToArray();
+            //var projNumber = 1;
+            //var projRos = workspace.CurrentSolution.Projects.ElementAt(projNumber);
+            //var references = projRos.ProjectReferences.ToArray();
+            
+            // Development Tools Extensibility
+            var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
 
-            //// Development Tools Extensibility
-            //var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
+            var projTest = dte.Solution.Projects.Item(1);
 
-            //IVsSolution solutionService = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
+            IVsSolution solutionService = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
+            IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
-            //for (int count = 1; count <= dte.Solution.Projects.Count; count++)
-            //{
-            //    IVsHierarchy selectedHierarchy;
+            //UnloadFirstSolutionProject();
 
-            //    var proj = dte.Solution.Projects.Item(count);
+            for (int count = 1; count <= dte.Solution.Projects.Count; count++)
+            {
+                IVsHierarchy selectedHierarchy;
 
-            //    if (proj.IsUnloaded() == false)
-            //    {
-            //        continue;
-            //    }
+                var proj = dte.Solution.Projects.Item(count);
 
-            //    proj.DTE.ExecuteCommand("Project.ReloadProject", "");
+                if (proj.IsUnloaded() == false)
+                {
+                    continue;
+                }
 
-            //    //ErrorHandler.ThrowOnFailure(solutionService.GetProjectOfUniqueName(proj.UniqueName, out selectedHierarchy));
+                //proj.DTE.ExecuteCommand("Project.UnloadProject", "");
+                ErrorHandler.ThrowOnFailure(solutionService.GetProjectOfUniqueName(proj.UniqueName, out selectedHierarchy));
 
-            //    //ErrorHandler.ThrowOnFailure(solutionService.CloseSolutionElement((uint)__VSSLNCLOSEOPTIONS.SLNCLOSEOPT_LoadProject, selectedHierarchy, 0));
-            //}
+                var guid = GetProjectGuid(selectedHierarchy);
 
-            ReloadLastSolutionProject();
+                solutionService4.ReloadProject(ref guid);
+            }
+
+            //ReloadLastSolutionProject();
 
             string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
             string title = "Reload all projects complete";
@@ -139,93 +145,15 @@ namespace IKoshelev.ProjectFocuser
                 OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
         }
 
-        private void ReloadLastSolutionProject()
-        {
-            IVsSolution4 solution;
-            IVsHierarchy projectHierarchy;
-            Guid projectGuid;
-
-            // Get the first project of the solution and reload it
-            try
-            {
-                solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
-
-                projectHierarchy = GetLastProjectHierarchy(solution);
-
-                if (projectHierarchy != null)
-                {
-                    projectGuid = GetProjectGuid(projectHierarchy);
-
-                    ReloadHierarchy(solution, projectGuid);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Windows.Forms.MessageBox.Show(ex.ToString());
-            }
-        }
-
-        private IVsHierarchy GetLastProjectHierarchy(IVsSolution4 solution)
-        {
-            IVsHierarchy solutionHierarchy;
-            int hr;
-            IntPtr nestedHierarchyValue = IntPtr.Zero;
-            uint nestedItemIdValue = 0;
-            Guid nestedHierarchyGuid;
-            IVsHierarchy projectHierarchy = null;
-            uint firstChildNode;
-            object value = null;
-
-            solutionHierarchy = solution as IVsHierarchy;
-
-            // Get the first visible child node of the solution
-            hr = solutionHierarchy.GetProperty(VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_FirstVisibleChild, out value);
-            int nexthr = hr;
-            while (nexthr != VSConstants.VSITEMID_NIL)
-            {
-                hr = nexthr;
-                nexthr = solutionHierarchy.GetProperty(VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_NextVisibleSibling, out value);
-            }
-
-            ErrorHandler.ThrowOnFailure(hr);
-
-            if (value != null)
-            {
-                firstChildNode = Convert.ToUInt32(value);
-
-                // Try to get the hierarchy of the node
-                nestedHierarchyGuid = typeof(IVsHierarchy).GUID;
-                hr = solutionHierarchy.GetNestedHierarchy(firstChildNode, ref nestedHierarchyGuid,
-                   out nestedHierarchyValue, out nestedItemIdValue);
-                ErrorHandler.ThrowOnFailure(hr);
-
-                if (nestedHierarchyValue != IntPtr.Zero && nestedItemIdValue == VSITEMID_ROOT)
-                {
-                    // Get the new hierarchy
-                    projectHierarchy = System.Runtime.InteropServices.Marshal.GetObjectForIUnknown(nestedHierarchyValue) as IVsHierarchy;
-                    System.Runtime.InteropServices.Marshal.Release(nestedHierarchyValue);
-                }
-            }
-            return projectHierarchy;
-        }
-
         private Guid GetProjectGuid(IVsHierarchy projectHierarchy)
         {
             Guid projectGuid;
             int hr;
 
-            hr = projectHierarchy.GetGuidProperty(VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ProjectIDGuid, out projectGuid);
+            hr = projectHierarchy.GetGuidProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ProjectIDGuid, out projectGuid);
             ErrorHandler.ThrowOnFailure(hr);
 
             return projectGuid;
-        }
-
-        private void ReloadHierarchy(IVsSolution4 solution, Guid projectGuid)
-        {
-            int hr;
-
-            hr = solution.ReloadProject(ref projectGuid);
-            ErrorHandler.ThrowOnFailure(hr);
         }
     }
 }

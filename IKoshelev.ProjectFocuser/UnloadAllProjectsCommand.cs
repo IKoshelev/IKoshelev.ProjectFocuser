@@ -95,30 +95,30 @@ namespace IKoshelev.ProjectFocuser
             // Development Tools Extensibility
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
 
-            var proj = dte.Solution.Projects.Item(1);
+            var projTest = dte.Solution.Projects.Item(1);
 
-            IVsSolution4 solutionService = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
+            IVsSolution solutionService = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
+            IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
-            UnloadFirstSolutionProject();
+            //UnloadFirstSolutionProject();
 
-            //for (int count = 1; count <= dte.Solution.Projects.Count; count++)
-            //{
-            //    IVsHierarchy selectedHierarchy;
+            for (int count = 1; count <= dte.Solution.Projects.Count; count++)
+            {
+                IVsHierarchy selectedHierarchy;
 
-            //    var proj = dte.Solution.Projects.Item(count);
+                var proj = dte.Solution.Projects.Item(count);
 
-            //    if (proj.IsUnloaded())
-            //    {
-            //        continue;
-            //    }
+                if (proj.IsUnloaded())
+                {
+                    continue;
+                }
 
-            //    proj.DTE.ExecuteCommand("Project.UnloadProject", "");
+                //proj.DTE.ExecuteCommand("Project.UnloadProject", "");
 
+                ErrorHandler.ThrowOnFailure(solutionService.GetProjectOfUniqueName(proj.UniqueName, out selectedHierarchy));
 
-            //    //ErrorHandler.ThrowOnFailure(solutionService.GetProjectOfUniqueName(proj.UniqueName, out selectedHierarchy));
-
-            //    //ErrorHandler.ThrowOnFailure(solutionService.CloseSolutionElement((uint)__VSSLNCLOSEOPTIONS.SLNCLOSEOPT_UnloadProject, selectedHierarchy, 0));
-            //}
+                ErrorHandler.ThrowOnFailure(solutionService.CloseSolutionElement((uint)__VSSLNCLOSEOPTIONS.SLNCLOSEOPT_UnloadProject, selectedHierarchy, 0));
+            }
 
             string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
             string title = "Unload all projects complete";
@@ -133,90 +133,88 @@ namespace IKoshelev.ProjectFocuser
                 OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
         }
 
-        private void UnloadFirstSolutionProject()
-        {
-            IVsSolution4 solution;
-            IVsHierarchy projectHierarchy;
-            Guid projectGuid;
+        //private void UnloadFirstSolutionProject()
+        //{
+        //    IVsSolution4 solution;
+        //    IVsHierarchy projectHierarchy;
+        //    Guid projectGuid;
 
-            // Get the first project of the solution and unload it
-            try
-            {
-                solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
+        //    // Get the first project of the solution and unload it
+        //    try
+        //    {
+        //        solution = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
-                // Get the first project of the solution and unload it
-                projectHierarchy = GetFirstProjectHierarchy(solution);
-                if (projectHierarchy != null)
-                {
-                    projectGuid = GetProjectGuid(projectHierarchy);
+        //        // Get the first project of the solution and unload it
+        //        projectHierarchy = GetFirstProjectHierarchy(solution);
+        //        if (projectHierarchy != null)
+        //        {
+        //            projectGuid = GetProjectGuid(projectHierarchy);
 
-                    UnloadProject(solution, projectGuid);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Windows.Forms.MessageBox.Show(ex.ToString());
-            }
-        }
+        //            UnloadProject(solution, projectGuid);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        System.Windows.Forms.MessageBox.Show(ex.ToString());
+        //    }
+        //}
 
-        private const uint VSITEMID_ROOT = 0xFFFFFFFE;
+        //private const uint VSITEMID_ROOT = 0xFFFFFFFE;
 
-        private IVsHierarchy GetFirstProjectHierarchy(IVsSolution4 solution)
-        {
-            IVsHierarchy solutionHierarchy;
-            int hr;
-            IntPtr nestedHierarchyValue = IntPtr.Zero;
-            uint nestedItemIdValue = 0;
-            Guid nestedHierarchyGuid;
-            IVsHierarchy projectHierarchy = null;
-            uint firstChildNode;
-            object value = null;
+        //private IVsHierarchy GetFirstProjectHierarchy(IVsSolution4 solution)
+        //{
+        //    IVsHierarchy solutionHierarchy;
+        //    int hr;
+        //    IntPtr nestedHierarchyValue = IntPtr.Zero;
+        //    uint nestedItemIdValue = 0;
+        //    Guid nestedHierarchyGuid;
+        //    IVsHierarchy projectHierarchy = null;
+        //    uint firstChildNode;
+        //    object value = null;
 
-            solutionHierarchy = solution as IVsHierarchy;
+        //    solutionHierarchy = solution as IVsHierarchy;
 
-            // Get the first visible child node of the solution
-            hr = solutionHierarchy.GetProperty(VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_FirstVisibleChild, out value);
-            ErrorHandler.ThrowOnFailure(hr);
+        //    // Get the first visible child node of the solution
+        //    hr = solutionHierarchy.GetProperty(VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_FirstVisibleChild, out value);
+        //    ErrorHandler.ThrowOnFailure(hr);
 
-            if (value != null)
-            {
-                firstChildNode = Convert.ToUInt32(value);
+        //    if (value != null)
+        //    {
+        //        firstChildNode = Convert.ToUInt32(value);
 
-                // Try to get the hierarchy of the node
-                nestedHierarchyGuid = typeof(IVsHierarchy).GUID;
-                hr = solutionHierarchy.GetNestedHierarchy(firstChildNode, ref nestedHierarchyGuid,
-                   out nestedHierarchyValue, out nestedItemIdValue);
-                ErrorHandler.ThrowOnFailure(hr);
+        //        // Try to get the hierarchy of the node
+        //        nestedHierarchyGuid = typeof(IVsHierarchy).GUID;
+        //        hr = solutionHierarchy.GetNestedHierarchy(firstChildNode, ref nestedHierarchyGuid,
+        //           out nestedHierarchyValue, out nestedItemIdValue);
+        //        ErrorHandler.ThrowOnFailure(hr);
 
-                if (nestedHierarchyValue != IntPtr.Zero && nestedItemIdValue == VSITEMID_ROOT)
-                {
-                    // Get the new hierarchy
-                    projectHierarchy = System.Runtime.InteropServices.Marshal.GetObjectForIUnknown(nestedHierarchyValue) as IVsHierarchy;
-                    System.Runtime.InteropServices.Marshal.Release(nestedHierarchyValue);
-                }
-            }
-            return projectHierarchy;
-        }
+        //        if (nestedHierarchyValue != IntPtr.Zero && nestedItemIdValue == VSITEMID_ROOT)
+        //        {
+        //            // Get the new hierarchy
+        //            projectHierarchy = System.Runtime.InteropServices.Marshal.GetObjectForIUnknown(nestedHierarchyValue) as IVsHierarchy;
+        //            System.Runtime.InteropServices.Marshal.Release(nestedHierarchyValue);
+        //        }
+        //    }
+        //    return projectHierarchy;
+        //}
 
         private Guid GetProjectGuid(IVsHierarchy projectHierarchy)
         {
             Guid projectGuid;
             int hr;
 
-            hr = projectHierarchy.GetGuidProperty(VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ProjectIDGuid, out projectGuid);
+            hr = projectHierarchy.GetGuidProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ProjectIDGuid, out projectGuid);
             ErrorHandler.ThrowOnFailure(hr);
 
             return projectGuid;
         }
 
-        private void UnloadProject(IVsSolution4 solution, Guid projectGuid)
-        {
-            int hr;
+        //private void UnloadProject(IVsSolution4 solution, Guid projectGuid)
+        //{
+        //    int hr;
 
-            hr = solution.UnloadProject(ref projectGuid, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser);
-            ErrorHandler.ThrowOnFailure(hr);
-        }
-
-
+        //    hr = solution.UnloadProject(ref projectGuid, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser);
+        //    ErrorHandler.ThrowOnFailure(hr);
+        //}
     }
 }
