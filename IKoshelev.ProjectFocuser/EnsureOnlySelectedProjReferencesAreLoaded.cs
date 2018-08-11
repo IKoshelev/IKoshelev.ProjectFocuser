@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Globalization;
+using System.Linq;
 using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -12,17 +15,17 @@ namespace IKoshelev.ProjectFocuser
     /// <summary>
     /// Command handler
     /// </summary>
-    internal sealed class UnloadAllProjectsCommand
+    internal sealed class EnsureOnlySelectedProjReferencesAreLoadedCommand
     {
         /// <summary>
         /// Command ID.
         /// </summary>
-        public const int CommandId = 0x0100;
+        public const int CommandId = 0x0300;
 
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
-        public static readonly Guid CommandSet = new Guid("b97309f8-343e-445a-adaa-16db2957a3b2");
+        public static readonly Guid CommandSet = new Guid("281c0281-1dba-43a7-8aae-496cef9936ba");
 
         /// <summary>
         /// VS Package that provides this command, not null.
@@ -30,11 +33,11 @@ namespace IKoshelev.ProjectFocuser
         private readonly Package package;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UnloadAllProjectsCommand"/> class.
+        /// Initializes a new instance of the <see cref="LoadAllProjectsCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private UnloadAllProjectsCommand(Package package)
+        private EnsureOnlySelectedProjReferencesAreLoadedCommand(Package package)
         {
             if (package == null)
             {
@@ -55,7 +58,7 @@ namespace IKoshelev.ProjectFocuser
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
-        public static UnloadAllProjectsCommand Instance
+        public static EnsureOnlySelectedProjReferencesAreLoadedCommand Instance
         {
             get;
             private set;
@@ -78,8 +81,10 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="package">Owner package, not null.</param>
         public static void Initialize(Package package)
         {
-            Instance = new UnloadAllProjectsCommand(package);
+            Instance = new EnsureOnlySelectedProjReferencesAreLoadedCommand(package);
         }
+
+        private const uint VSITEMID_ROOT = 0xFFFFFFFE;
 
         /// <summary>
         /// This function is the callback used to execute the command when the menu item is clicked.
@@ -91,25 +96,37 @@ namespace IKoshelev.ProjectFocuser
         public void MenuItemCallback(object sender, EventArgs e)
         {
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-
             IVsSolution solutionService = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
             IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
+            var componentModel = Package.GetGlobalService(typeof(SComponentModel)) as IComponentModel;
+            var workspace = componentModel.GetService<VisualStudioWorkspace>();
+
+            string[] selectedProjectNames = Util.GetSelectedProjectNames(dte, solutionService);
+
+            var allGuidsToLoad = new RoslynSolutionAnalysis()
+                                        .GetRecursivelyReferencedProjectGuids(workspace.CurrentSolution.FilePath, selectedProjectNames)
+                                        .Result;
+
             for (int count = 1; count <= dte.Solution.Projects.Count; count++)
             {
-                var proj = dte.Solution.Projects.Item(count);
+                Project proj = dte.Solution.Projects.Item(count);
 
-                if (proj.IsUnloaded())
+                var shouldBeLoaded = allGuidsToLoad.Contains(proj.Name);
+
+                if(shouldBeLoaded && proj.IsUnloaded())
                 {
-                    continue;
+                    Guid guid = Util.GetProjectGuid(solutionService, proj);
+                    solutionService4.ReloadProject(ref guid);
                 }
-
-                Guid guid = Util.GetProjectGuid(solutionService, proj);
-
-                solutionService4.UnloadProject(ref guid, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser);
+                else if (!shouldBeLoaded && proj.IsUnloaded() == false)
+                {
+                    Guid guid = Util.GetProjectGuid(solutionService, proj);
+                    solutionService4.UnloadProject(ref guid, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser);
+                }
             }
 
-            string message = "Unload all projects complete";
+            string message = "Ensure only selected projects loaded recurisvely complete";
 
             // Show a message box to prove we were here
             VsShellUtilities.ShowMessageBox(

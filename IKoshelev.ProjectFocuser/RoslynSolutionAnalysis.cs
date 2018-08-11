@@ -11,48 +11,54 @@ namespace IKoshelev.ProjectFocuser
 {
     public interface IRoslynSolutionAnalysis
     {
-        Task<Guid[]> GetRecursivelyReferencedProjectGuids(string solutionFilePath, Guid[] rootProjects);
+        Task<HashSet<string>> GetRecursivelyReferencedProjectGuids(string solutionFilePath, string[] rootProjects);
     }
 
     public class RoslynSolutionAnalysis : IRoslynSolutionAnalysis
     {
-        public async Task<Guid[]> GetRecursivelyReferencedProjectGuids(string solutionFilePath, Guid[] rootProjects)
+        public async Task<HashSet<string>> GetRecursivelyReferencedProjectGuids(string solutionFilePath, string[] rootProjectNames)
         {
             var workspace = MSBuildWorkspace.Create();
 
-            var solution = await workspace.OpenSolutionAsync(solutionFilePath);
+            var solution = workspace.OpenSolutionAsync(solutionFilePath).Result;
 
-            var references = new ConcurrentDictionary<Guid, object>();
+            var references = new ConcurrentDictionary<string, object>();
 
-            var tasks = rootProjects
-                            .Select(async (projId) =>
+            var tasks = rootProjectNames
+                            .Select(async (projName) =>
                             {
-                                await FillReferencedProjectSetRecursively(solution, projId, references);
+                                await FillReferencedProjectSetRecursively(solution, projName, references);
                             });
 
-            await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks);
 
-            return references.Keys.ToArray();
+            return new HashSet<string>(references.Keys);
         }
 
-        private async Task FillReferencedProjectSetRecursively(Solution solution, Guid projectGuid, ConcurrentDictionary<Guid, object> knownReferences)
+        private async Task FillReferencedProjectSetRecursively(Solution solution, string projectName, ConcurrentDictionary<string, object> knownReferences)
         {
-            var addedFirst = knownReferences.TryAdd(projectGuid, null);
+            var addedFirst = knownReferences.TryAdd(projectName, null);
 
             if(!addedFirst)
             {
                 return;
             }
 
+            var a = solution.Projects.ToArray();
+
             var project = solution
                             .Projects
-                            .Single(proj => proj.Id.Id == projectGuid);
+                            .Single(proj => proj.Name == projectName);
 
             var tasks = project
                             .ProjectReferences
                             .Select(async (reference) =>
                             {
-                                await FillReferencedProjectSetRecursively(solution, reference.ProjectId.Id, knownReferences);
+                                var refProject = solution
+                                                        .Projects
+                                                        .Single(proj => proj.Id.Id == reference.ProjectId.Id);
+
+                                await FillReferencedProjectSetRecursively(solution, refProject.Name, knownReferences);
                             });
 
             await Task.WhenAll(tasks); 

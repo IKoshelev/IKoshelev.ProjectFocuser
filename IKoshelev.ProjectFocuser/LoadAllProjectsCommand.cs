@@ -95,70 +95,12 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="e">Event args.</param>
         public void MenuItemCallback(object sender, EventArgs e)
         {
-            var componentModel = Package.GetGlobalService(typeof(SComponentModel)) as IComponentModel;
-            var workspace = componentModel.GetService<VisualStudioWorkspace>();
-            //var projNumber = 1;
-            //var projRos = workspace.CurrentSolution.Projects.ElementAt(projNumber);
-            //var references = projRos.ProjectReferences.ToArray();
-            
-            // Development Tools Extensibility
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
             IVsSolution solutionService = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
             IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
-            var selectedGuids = dte.SelectedItems
-                                    .Cast<SelectedItem>()
-                                    .Select(item => 
-                                    {
-                                        var project = dte.Solution.Projects.Cast<Project>().SingleOrDefault(x => x.Name == item.Name);
-                                        if (project == null)
-                                        {
-                                            return new Guid();
-                                        }
-                                        return GetProjectGuid(solutionService, project);
-                                    })
-                                    .Where(guid => guid != new Guid())
-                                    .ToArray();
-
-            var projTest = dte.Solution.Projects.Item(1);
-
-            //UnloadFirstSolutionProject();
-
-            var dte2 = dte as EnvDTE80.DTE2;
-            foreach(Project project in dte2.Solution.Projects)
-            {
-                var nam = project.Name;
-                var uniquNam = project.UniqueName;
-                var projObj = project.Object;
-                
-                if (projObj != null)
-                {
-                    var vsproject = projObj as VSLangProj.VSProject;
-
-                    foreach (VSLangProj.Reference reference in vsproject.References)
-                    {
-                        if (reference.SourceProject == null)
-                        {
-
-                        }
-                        else
-                        {
-                            var desc = reference.Description;
-                            var identity = reference.Identity;
-                            var name = reference.Name;
-                            var path = reference.Path;
-                            var sourceProj = reference.SourceProject;
-                            var sourceName = sourceProj.Name;
-                        }
-                    }
-                }
-            }
-
-
             for (int count = 1; count <= dte.Solution.Projects.Count; count++)
             {
-
-
                 EnvDTE.Project proj = dte.Solution.Projects.Item(count);
 
                 if (proj.IsUnloaded() == false)
@@ -166,45 +108,21 @@ namespace IKoshelev.ProjectFocuser
                     continue;
                 }
 
-                Guid guid = GetProjectGuid(solutionService, proj);
+                Guid guid = Util.GetProjectGuid(solutionService, proj);
 
                 solutionService4.ReloadProject(ref guid);
             }
 
-            //ReloadLastSolutionProject();
-
-            string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
-            string title = "Reload all projects complete";
+            string message = "Load all projects complete";
 
             // Show a message box to prove we were here
             VsShellUtilities.ShowMessageBox(
                 this.ServiceProvider,
                 message,
-                title,
+                UnloadAllProjectsCommandPackage.MessageBoxName,
                 OLEMSGICON.OLEMSGICON_INFO,
                 OLEMSGBUTTON.OLEMSGBUTTON_OK,
                 OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-        }
-
-        private Guid GetProjectGuid(IVsSolution solutionService, Project proj)
-        {
-            IVsHierarchy selectedHierarchy;
-
-            ErrorHandler.ThrowOnFailure(solutionService.GetProjectOfUniqueName(proj.UniqueName, out selectedHierarchy));
-
-            var guid = GetProjectGuid(selectedHierarchy);
-            return guid;
-        }
-
-        private Guid GetProjectGuid(IVsHierarchy projectHierarchy)
-        {
-            Guid projectGuid;
-            int hr;
-
-            hr = projectHierarchy.GetGuidProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ProjectIDGuid, out projectGuid);
-            ErrorHandler.ThrowOnFailure(hr);
-
-            return projectGuid;
         }
     }
 }

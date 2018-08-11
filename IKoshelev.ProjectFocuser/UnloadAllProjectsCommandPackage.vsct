@@ -66,6 +66,13 @@
           <ButtonText>Load all projects</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidEnsureOnlySelectedProjReferencesAreLoadedPackageCmdSet" id="EnsureOnlySelectedProjReferencesAreLoadedCommandId" priority="0x0300" type="Button">
+        <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
+        <Icon guid="guidImages" id="bmpPic2" />
+        <Strings>
+          <ButtonText>Only selected projects and their references recursively loaded</ButtonText>
+        </Strings>
+      </Button>
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -92,6 +99,11 @@
     <GuidSymbol name="guidLoadAllProjectsCommandPackageCmdSet" value="{82cb990d-f919-4fbe-8af5-f325882b6bed}">
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="LoadAllProjectsCommandId" value="0x0200" />
+    </GuidSymbol>
+
+    <GuidSymbol name="guidEnsureOnlySelectedProjReferencesAreLoadedPackageCmdSet" value="{281c0281-1dba-43a7-8aae-496cef9936ba}">
+      <IDSymbol name="MyMenuGroup" value="0x1020" />
+      <IDSymbol name="EnsureOnlySelectedProjReferencesAreLoadedCommandId" value="0x0300" />
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{ff287d7c-84d4-4f0e-b900-e1fcaa51f725}" >
