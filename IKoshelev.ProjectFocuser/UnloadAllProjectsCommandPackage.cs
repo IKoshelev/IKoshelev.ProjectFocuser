@@ -31,6 +31,7 @@ namespace IKoshelev.ProjectFocuser
     /// To get loaded into VS, the package must be referred by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
     /// </para>
     /// </remarks>
+    [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
@@ -56,15 +57,47 @@ namespace IKoshelev.ProjectFocuser
 
         #region Package Members
 
+        DTE DTE;
+        SolutionEvents solutionEvents;
+
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
         /// where you can put all the initialization code that rely on services provided by VisualStudio.
         /// </summary>
         protected override void Initialize()
         {
+            IServiceContainer serviceContainer = this as IServiceContainer;
+            DTE = serviceContainer.GetService(typeof(SDTE)) as DTE;
+            EnvDTE.Events events = DTE.Events;
+            solutionEvents = events.SolutionEvents;
+            solutionEvents.Opened += OnSolutionOpened;
+
             UnloadAllProjectsCommand.Initialize(this);
             LoadAllProjectsCommand.Initialize(this);
             base.Initialize();
+        }
+
+        private void OnSolutionOpened()
+        {
+            try
+            {
+                UnloadAllProjectsCommand.Instance.MenuItemCallback(null, null);
+                //LoadAllProjectsCommand.Instance.MenuItemCallback(null, null);
+                //string startupFile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(DTE.Solution.FullName), GetSolutionStartPage());
+                //if (System.IO.File.Exists(startupFile))
+                //{
+                //    DTE.ItemOperations.Navigate(startupFile);
+                //}
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        string GetSolutionStartPage()
+        {
+            return ((DTE.Solution != null) ? System.IO.Path.GetFileNameWithoutExtension(DTE.Solution.FullName) : "") + ".html";
         }
 
         #endregion

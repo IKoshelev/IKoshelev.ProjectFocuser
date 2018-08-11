@@ -88,7 +88,7 @@ namespace IKoshelev.ProjectFocuser
         /// </summary>
         /// <param name="sender">Event sender.</param>
         /// <param name="e">Event args.</param>
-        private void MenuItemCallback(object sender, EventArgs e)
+        public void MenuItemCallback(object sender, EventArgs e)
         {
             var componentModel = Package.GetGlobalService(typeof(SComponentModel)) as IComponentModel;
 
