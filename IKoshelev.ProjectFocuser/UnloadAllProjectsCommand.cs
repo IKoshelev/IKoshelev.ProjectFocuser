@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Globalization;
 using EnvDTE;
@@ -95,18 +96,12 @@ namespace IKoshelev.ProjectFocuser
             IVsSolution solutionService = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
             IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
-            for (int count = 1; count <= dte.Solution.Projects.Count; count++)
+            var projects = Util.GetProjectInfosRecursively(solutionService, dte.Solution.Projects, true);
+            foreach(var proj in projects)
             {
-                var proj = dte.Solution.Projects.Item(count);
-
-                if (proj.IsUnloaded())
-                {
-                    continue;
-                }
-
-                Guid guid = Util.GetProjectGuid(solutionService, proj);
-
-                solutionService4.UnloadProject(ref guid, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser);
+                var guid = proj.Guid;
+                var res = solutionService4.UnloadProject(ref guid, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser);
+                ErrorHandler.ThrowOnFailure(res);
             }
 
             string message = "Unload all projects complete";
@@ -120,5 +115,6 @@ namespace IKoshelev.ProjectFocuser
                 OLEMSGBUTTON.OLEMSGBUTTON_OK,
                 OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
         }
+
     }
 }

@@ -108,22 +108,23 @@ namespace IKoshelev.ProjectFocuser
                                         .GetRecursivelyReferencedProjectGuids(workspace.CurrentSolution.FilePath, selectedProjectNames)
                                         .Result;
 
-            for (int count = 1; count <= dte.Solution.Projects.Count; count++)
+            var projectGuids = Util.GetProjectInfosRecursively(solutionService, dte.Solution.Projects);
+            foreach (var proj in projectGuids)
             {
-                Project proj = dte.Solution.Projects.Item(count);
-
                 var shouldBeLoaded = allGuidsToLoad.Contains(proj.Name);
 
-                if(shouldBeLoaded && proj.IsUnloaded())
+                var guid = proj.Guid;
+
+                int res = 0;
+                if (shouldBeLoaded)
                 {
-                    Guid guid = Util.GetProjectGuid(solutionService, proj);
-                    solutionService4.ReloadProject(ref guid);
+                    res = solutionService4.ReloadProject(ref guid);                    
                 }
-                else if (!shouldBeLoaded && proj.IsUnloaded() == false)
+                else if (!shouldBeLoaded)
                 {
-                    Guid guid = Util.GetProjectGuid(solutionService, proj);
-                    solutionService4.UnloadProject(ref guid, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser);
+                    res = solutionService4.UnloadProject(ref guid, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser);
                 }
+                //ErrorHandler.ThrowOnFailure(res);
             }
 
             string message = "Ensure only selected projects loaded recurisvely complete";

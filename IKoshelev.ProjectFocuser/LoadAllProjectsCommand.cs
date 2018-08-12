@@ -99,18 +99,13 @@ namespace IKoshelev.ProjectFocuser
             IVsSolution solutionService = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
             IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
-            for (int count = 1; count <= dte.Solution.Projects.Count; count++)
+            var projects = Util.GetProjectInfosRecursively(solutionService, dte.Solution.Projects, false);
+            foreach (var proj in projects)
             {
-                EnvDTE.Project proj = dte.Solution.Projects.Item(count);
+                var guid = proj.Guid;
 
-                if (proj.IsUnloaded() == false)
-                {
-                    continue;
-                }
-
-                Guid guid = Util.GetProjectGuid(solutionService, proj);
-
-                solutionService4.ReloadProject(ref guid);
+                var res = solutionService4.ReloadProject(ref guid);
+                ErrorHandler.ThrowOnFailure(res);
             }
 
             string message = "Load all projects complete";
