@@ -59,6 +59,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LoadAllProjectsCommand.cs" />
     <Compile Include="RoslynSolutionAnalysis.cs" />
+    <Compile Include="SlnFileParser.cs" />
     <Compile Include="UnloadAllProjectsCommand.cs" />
     <Compile Include="UnloadAllProjectsCommandPackage.cs" />
     <Compile Include="Util.cs" />

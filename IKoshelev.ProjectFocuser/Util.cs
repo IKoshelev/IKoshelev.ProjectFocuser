@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using EnvDTE80;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
@@ -9,18 +10,6 @@ using System.Threading.Tasks;
 
 namespace IKoshelev.ProjectFocuser
 {
-    public class ProjectInfo
-    {
-        public ProjectInfo(Guid guid, string name)
-        {
-            Guid = guid;
-            Name = name;
-        }
-
-        public Guid Guid { get; set; }
-        public string Name { get; set; } 
-    }
-
     public static class Util
     {
         public static bool IsCsproj(this Project proj)
@@ -57,60 +46,44 @@ namespace IKoshelev.ProjectFocuser
             return isFolder;
         }
 
-        private static void ForEach(this Projects projects, bool? isLoaded, Action<Project> action)
+        private static void ForEach(this Projects projects, Action<Project> action)
         {
             for (int count = 1; count <= projects.Count; count++)
             {
                 var proj = projects.Item(count);
 
-                if (proj.IsFolder() == false
-                    && isLoaded.HasValue 
-                    && !proj.IsUnloaded() != isLoaded)
-                {
-                    continue;
-                }
-
                 action(proj);
             }
         }
 
-        public static ProjectInfo[] GetProjectInfosRecursively(IVsSolution solutionService, Projects rootProjects, bool? isLoaded = null)
+        public static ProjectItem[] GetProjectItemsRecursively(IVsSolution solutionService, DTE2 dte)
         {
-            var allProjects = new List<ProjectInfo>();
-            rootProjects.ForEach(isLoaded, (proj) =>
+            var allProjects = new List<ProjectItem>();
+            dte.Solution.Projects.ForEach((proj) =>
             {            
                 if (proj.IsFolder())
                 {
-                    GetSolutionFolderProjects(solutionService, proj, isLoaded, allProjects);
+                    GetSolutionFolderProjects(solutionService, proj, allProjects);
                 }
                 else
                 {
-                    var guid = GetProjectGuid(solutionService, proj.UniqueName);
-                    var info = new ProjectInfo(guid, proj.Name);
-                    allProjects.Add(info);
+                    var path = proj.Name; ;
+                    var item = dte.Solution.FindProjectItem(path);
+                    //allProjects.Add(item);
                 }
             });
             return allProjects.ToArray();
         }
 
-        public static string[] GetSelectedProjectNames(DTE dte, IVsSolution solutionService)
+        public static string[] GetSelectedItemNames(DTE dte)
         {
             return dte.SelectedItems
                         .Cast<SelectedItem>()
-                        .Select(item =>
-                        {
-                            var project = dte.Solution.Projects.Cast<Project>().SingleOrDefault(x => x.Name == item.Name);
-                            if (project == null)
-                            {
-                                return null;
-                            }
-                            return project.Name;
-                        })
-                        .Where(guid => guid != null)
+                        .Select(item => item.Name)
                         .ToArray();
         }
 
-        private static void GetSolutionFolderProjects(IVsSolution solutionService, Project solutionFolder, bool? isLoaded, List<ProjectInfo> allProject)
+        private static void GetSolutionFolderProjects(IVsSolution solutionService, Project solutionFolder, List<ProjectItem> allProject)
         {
             for (var i = 1; i <= solutionFolder.ProjectItems.Count; i++)
             {
@@ -123,19 +96,16 @@ namespace IKoshelev.ProjectFocuser
                 // If this is another solution folder, do a recursive call, otherwise add
                 if (projectItem.IsFolder())
                 {
-                    GetSolutionFolderProjects(solutionService, projectItem, isLoaded, allProject);
+                    GetSolutionFolderProjects(solutionService, projectItem, allProject);
                 }
-                else if (isLoaded.HasValue
-                            && !projectItem.IsUnloaded() == isLoaded)
+                else
                 {
-                    var guid = GetProjectGuid(solutionService, projectItem.Name);
-                    var info = new ProjectInfo(guid, projectItem.Name);
-                    allProject.Add(info);
+                    allProject.Add(projectItem);
                 }
             }
         }
 
-        private static void GetSolutionFolderProjects(IVsSolution solutionService, ProjectItem solutionFolder, bool? isLoaded, List<ProjectInfo> allProject)
+        private static void GetSolutionFolderProjects(IVsSolution solutionService, ProjectItem solutionFolder, List<ProjectItem> allProject)
         {
             for (var i = 1; i <= solutionFolder.ProjectItems.Count; i++)
             {
@@ -148,14 +118,11 @@ namespace IKoshelev.ProjectFocuser
                 // If this is another solution folder, do a recursive call, otherwise add
                 if (projectItem.IsFolder())
                 {
-                    GetSolutionFolderProjects(solutionService, projectItem, isLoaded, allProject);
+                    GetSolutionFolderProjects(solutionService, projectItem, allProject);
                 }
-                else if (isLoaded.HasValue
-                            && !projectItem.IsUnloaded() == isLoaded)
+                else
                 {
-                    var guid = GetProjectGuid(solutionService, projectItem.Name);
-                    var info = new ProjectInfo(guid, projectItem.Name);
-                    allProject.Add(info);
+                    allProject.Add(projectItem);
                 }
             }
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Globalization;
 using EnvDTE;
+using EnvDTE80;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
@@ -92,16 +93,19 @@ namespace IKoshelev.ProjectFocuser
         public void MenuItemCallback(object sender, EventArgs e)
         {
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
+            var dte2 = Package.GetGlobalService(typeof(DTE)) as DTE2;
 
             IVsSolution solutionService = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
             IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
-            var projects = Util.GetProjectInfosRecursively(solutionService, dte.Solution.Projects, true);
-            foreach(var proj in projects)
+            var projects = SlnFileParser.GetProjectNamesToGuidsDict(dte.Solution.FileName);
+
+            //var projects = Util.GetProjectItemsRecursively(solutionService, dte2);
+            foreach (var proj in projects.Values)
             {
-                var guid = proj.Guid;
+                var guid = new Guid(proj);
                 var res = solutionService4.UnloadProject(ref guid, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser);
-                ErrorHandler.ThrowOnFailure(res);
+                //ErrorHandler.ThrowOnFailure(res);
             }
 
             string message = "Unload all projects complete";

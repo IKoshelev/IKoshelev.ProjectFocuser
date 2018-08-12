@@ -4,6 +4,7 @@ using System.ComponentModel.Design;
 using System.Globalization;
 using System.Linq;
 using EnvDTE;
+using EnvDTE80;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
@@ -96,29 +97,33 @@ namespace IKoshelev.ProjectFocuser
         public void MenuItemCallback(object sender, EventArgs e)
         {
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
+            var dte2 = Package.GetGlobalService(typeof(DTE)) as DTE2;
             IVsSolution solutionService = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
             IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
             var componentModel = Package.GetGlobalService(typeof(SComponentModel)) as IComponentModel;
             var workspace = componentModel.GetService<VisualStudioWorkspace>();
 
-            string[] selectedProjectNames = Util.GetSelectedProjectNames(dte, solutionService);
+            string[] selectedProjectNames = Util.GetSelectedItemNames(dte);
 
             var allGuidsToLoad = new RoslynSolutionAnalysis()
                                         .GetRecursivelyReferencedProjectGuids(workspace.CurrentSolution.FilePath, selectedProjectNames)
                                         .Result;
 
-            var projectGuids = Util.GetProjectInfosRecursively(solutionService, dte.Solution.Projects);
-            foreach (var proj in projectGuids)
-            {
-                var shouldBeLoaded = allGuidsToLoad.Contains(proj.Name);
+            var projects = SlnFileParser.GetProjectNamesToGuidsDict(dte.Solution.FileName);
 
-                var guid = proj.Guid;
+            //var projectGuids = Util.GetProjectItemsRecursively(solutionService, dte2);
+            foreach (var projName in projects.Keys)
+            {
+                var shouldBeLoaded = allGuidsToLoad.Contains(projName);
+
+                var guidStr = projects[projName];
+                var guid = new Guid(guidStr);
 
                 int res = 0;
                 if (shouldBeLoaded)
                 {
-                    res = solutionService4.ReloadProject(ref guid);                    
+                    res = solutionService4.ReloadProject(ref guid);
                 }
                 else if (!shouldBeLoaded)
                 {
