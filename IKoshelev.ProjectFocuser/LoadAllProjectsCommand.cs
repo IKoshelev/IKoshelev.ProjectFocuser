@@ -97,13 +97,10 @@ namespace IKoshelev.ProjectFocuser
         public void MenuItemCallback(object sender, EventArgs e)
         {
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            var dte2 = Package.GetGlobalService(typeof(DTE)) as DTE2;
-            IVsSolution solutionService = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
             IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
             var projects = SlnFileParser.GetProjectNamesToGuidsDict(dte.Solution.FileName);
 
-            //var projects = Util.GetProjectItemsRecursively(solutionService, dte2);
             foreach (var proj in projects.Values)
             {
                 var guid = new Guid(proj);

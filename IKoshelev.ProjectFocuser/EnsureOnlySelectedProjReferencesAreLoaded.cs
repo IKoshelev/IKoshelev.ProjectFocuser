@@ -97,8 +97,6 @@ namespace IKoshelev.ProjectFocuser
         public void MenuItemCallback(object sender, EventArgs e)
         {
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            var dte2 = Package.GetGlobalService(typeof(DTE)) as DTE2;
-            IVsSolution solutionService = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution;
             IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
             var componentModel = Package.GetGlobalService(typeof(SComponentModel)) as IComponentModel;
@@ -112,7 +110,6 @@ namespace IKoshelev.ProjectFocuser
 
             var projects = SlnFileParser.GetProjectNamesToGuidsDict(dte.Solution.FileName);
 
-            //var projectGuids = Util.GetProjectItemsRecursively(solutionService, dte2);
             foreach (var projName in projects.Keys)
             {
                 var shouldBeLoaded = allGuidsToLoad.Contains(projName);
