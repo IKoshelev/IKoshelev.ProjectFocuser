@@ -68,6 +68,7 @@ namespace IKoshelev.ProjectFocuser
             UnloadAllProjectsCommand.Initialize(this);
             LoadAllProjectsCommand.Initialize(this);
             EnsureOnlySelectedProjReferencesAreLoadedCommand.Initialize(this);
+            AddSelectedProjectsAndReferencesCommand.Initialize(this);
             base.Initialize();
         }
 

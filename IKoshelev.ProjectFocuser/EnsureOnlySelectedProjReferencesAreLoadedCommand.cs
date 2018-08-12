@@ -96,6 +96,11 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="e">Event args.</param>
         public void MenuItemCallback(object sender, EventArgs e)
         {
+            EnsureSelectedProjReferencesAreLoadedCommand(ServiceProvider, true);
+        }
+
+        internal static void EnsureSelectedProjReferencesAreLoadedCommand(IServiceProvider provider, bool unloadUnusedProjects)
+        {
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
             IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
@@ -122,7 +127,7 @@ namespace IKoshelev.ProjectFocuser
                 {
                     res = solutionService4.ReloadProject(ref guid);
                 }
-                else if (!shouldBeLoaded)
+                else if (unloadUnusedProjects && !shouldBeLoaded)
                 {
                     res = solutionService4.UnloadProject(ref guid, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser);
                 }
@@ -133,7 +138,7 @@ namespace IKoshelev.ProjectFocuser
 
             // Show a message box to prove we were here
             VsShellUtilities.ShowMessageBox(
-                this.ServiceProvider,
+                provider,
                 message,
                 UnloadAllProjectsCommandPackage.MessageBoxName,
                 OLEMSGICON.OLEMSGICON_INFO,
