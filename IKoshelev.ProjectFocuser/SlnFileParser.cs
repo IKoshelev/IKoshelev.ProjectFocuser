@@ -14,8 +14,8 @@ namespace IKoshelev.ProjectFocuser
         {
             var text = File.ReadAllText(slnPath);
 
-            //Raw regex: /Project\(\"\{([0-9ABCDEF-]*)\}\"\) = \"([A-z.]*)\", \"([A-z.]*)\", \"\{([0-9ABCDEF-]*)\}\"/g
-            var regex = new Regex(@"Project\(\""\{([0-9ABCDEF-]*)\}\""\) = \""([A-z.]*)\"", \""([A-z.]*)\"", \""\{([0-9ABCDEF-]*)\}\""");
+            //Raw regex: /Project\(\"\{([0-9ABCDEF-]*)\}\"\) = \"([^"]*)\", \"([^"]*)\", \"\{([0-9ABCDEF-]*)\}\"/g
+            var regex = new Regex(@"Project\(\""\{([0-9ABCDEF-]*)\}\""\) = \""([^""]*)\"", \""([^""]*)\"", \""\{([0-9ABCDEF-]*)\}\""");
 
             var matches = regex.Matches(text);
 
