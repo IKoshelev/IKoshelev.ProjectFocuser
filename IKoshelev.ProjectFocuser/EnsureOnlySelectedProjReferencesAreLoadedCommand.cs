@@ -104,13 +104,10 @@ namespace IKoshelev.ProjectFocuser
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
             IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
-            var componentModel = Package.GetGlobalService(typeof(SComponentModel)) as IComponentModel;
-            var workspace = componentModel.GetService<VisualStudioWorkspace>();
-
             string[] selectedProjectNames = Util.GetSelectedItemNames(dte);
 
             var allGuidsToLoad = new RoslynSolutionAnalysis()
-                                        .GetRecursivelyReferencedProjectGuids(workspace.CurrentSolution.FilePath, selectedProjectNames)
+                                        .GetRecursivelyReferencedProjectGuids(dte.Solution.FileName, selectedProjectNames)
                                         .Result;
 
             var projects = SlnFileParser.GetProjectNamesToGuidsDict(dte.Solution.FileName);
