@@ -133,31 +133,36 @@ namespace IKoshelev.ProjectFocuser
                     var success = true;
                     foreach (ProjectId projectId in projectIds)
                     {
-                        Compilation projectCompilation = await solution.GetProject(projectId).GetCompilationAsync();
-                        if (null != projectCompilation)
+                        var project = solution.GetProject(projectId);
+                        customPane.OutputStringThreadSafe($"Compiling {project.Name}\r\n");
+                        Compilation projectCompilation = await project.GetCompilationAsync();
+                        if (projectCompilation == null)
                         {
-                            var diag = projectCompilation.GetDiagnostics().Where(x => x.IsSuppressed == false
-                                                                                    && x.Severity == DiagnosticSeverity.Error);
+                            customPane.OutputStringThreadSafe($"Error, could not get compilation of {project.Name}\r\n");
+                            continue;
+                        }
 
-                            if(diag.Any())
-                            {
-                                success = false;
-                            }
+                        var diag = projectCompilation.GetDiagnostics().Where(x => x.IsSuppressed == false
+                                                                                  && x.Severity == DiagnosticSeverity.Error);
 
-                            foreach (var diagItem in diag)
-                            {
-                                customPane.OutputStringThreadSafe(diagItem.ToString() + "\r\n");
-                            }
+                        if (diag.Any())
+                        {
+                            success = false;
+                        }
+
+                        foreach (var diagItem in diag)
+                        {
+                            customPane.OutputStringThreadSafe(diagItem.ToString() + "\r\n");
                         }
                     }
 
                     if (success)
                     {
-                        customPane.OutputStringThreadSafe($"Compilation successful.\r\n");
+                        customPane.OutputStringThreadSafe($"Compilation successful\r\n");
                     }
                     else
                     {
-                        customPane.OutputStringThreadSafe($"Compilation erros found.\r\n");
+                        customPane.OutputStringThreadSafe($"Compilation erros found; You can double-click file path in this pane to open it in VS\r\n");
                     }
                 }
                 catch (Exception ex)
