@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
@@ -156,6 +157,44 @@ namespace IKoshelev.ProjectFocuser
             ErrorHandler.ThrowOnFailure(hr);
 
             return projectGuid;
+        }
+
+        public static void WriteExtensionOutput(string message, int retyrCount = 20)
+        {
+            try
+            {
+                IVsOutputWindowPane customPane = GetThisExtensionOutputPane();
+                customPane.OutputStringThreadSafe(message);
+
+            }
+            catch (InvalidOperationException ex)
+            {
+                if (retyrCount > 0 && ex.Message.Contains("has not been loaded yet"))
+                {
+                    System.Threading.Tasks.Task.Factory.StartNew(async () =>
+                    {
+                        await System.Threading.Tasks.Task.Delay(5000);
+                        WriteExtensionOutput(message, retyrCount - 1);
+                    });
+                }
+            }
+        }
+
+        public static IVsOutputWindowPane GetThisExtensionOutputPane()
+        {
+            var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
+            Window window = dte.Windows.Item(EnvDTE.Constants.vsWindowKindOutput);
+            IVsOutputWindow outWindow = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
+
+            Guid customGuid = new Guid("BC12B8A0-1678-48D5-B8C0-D3B5EB4D9064");
+            string customTitle = "IKoshelev.ProjectFocuser";
+
+            outWindow.CreatePane(ref customGuid, customTitle, 1, 1);
+
+            IVsOutputWindowPane customPane;
+
+            outWindow.GetPane(ref customGuid, out customPane);
+            return customPane;
         }
     }
 }

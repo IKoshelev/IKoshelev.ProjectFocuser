@@ -106,9 +106,11 @@ namespace IKoshelev.ProjectFocuser
 
             string[] selectedProjectNames = Util.GetSelectedItemNames(dte);
 
-            var allGuidsToLoad = new RoslynSolutionAnalysis()
-                                        .GetRecursivelyReferencedProjectGuids(dte.Solution.FileName, selectedProjectNames)
-                                        .Result;
+            IRoslynSolutionAnalysis roslyn = new RoslynSolutionAnalysis();
+
+            var allGuidsToLoad = roslyn
+                                    .GetRecursivelyReferencedProjectGuids(dte.Solution.FileName, selectedProjectNames)
+                                    .Result;
 
             var projects = SlnFileParser.GetProjectNamesToGuidsDict(dte.Solution.FileName);
 

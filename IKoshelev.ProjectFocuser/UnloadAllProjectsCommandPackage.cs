@@ -65,6 +65,8 @@ namespace IKoshelev.ProjectFocuser
         /// </summary>
         protected override void Initialize()
         {
+            RoslynSolutionAnalysis.EnsureMaxVisualStudioMsBuildVersionHasBeenRegistered();
+
             UnloadAllProjectsCommand.Initialize(this);
             LoadAllProjectsCommand.Initialize(this);
             EnsureOnlySelectedProjReferencesAreLoadedCommand.Initialize(this);

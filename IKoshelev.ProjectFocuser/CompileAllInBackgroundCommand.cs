@@ -103,73 +103,14 @@ namespace IKoshelev.ProjectFocuser
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
             var slnPath = dte.Solution.FileName;
 
-            IVsOutputWindow outWindow = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
-
-            // Use e.g. Tools -> Create GUID to make a stable, but unique GUID for your pane.
-            // Also, in a real project, this should probably be a static constant, and not a local variable
-            Guid customGuid = new Guid("1D5FDBCA-EE91-4203-BE44-38E3654AF3F6");
-            string customTitle = "Full solution background compilation errors";
-
-            //todo try get before creating? nope, works as is
-            outWindow.CreatePane(ref customGuid, customTitle, 1, 1);
-
-            IVsOutputWindowPane customPane;
-
-            outWindow.GetPane(ref customGuid, out customPane);
+            IVsOutputWindowPane customPane = Util.GetThisExtensionOutputPane();
 
             customPane.OutputStringThreadSafe($"Starting full compilation of {slnPath}\r\n");
 
-            System.Threading.Tasks.Task.Factory.StartNew(async () => 
-            {
-                try
-                {
-                    var workspace = MSBuildWorkspace.Create();
-
-                    var solution = await workspace.OpenSolutionAsync(slnPath);
-
-                    ProjectDependencyGraph projectGraph = solution.GetProjectDependencyGraph();
-
-                    var projectIds = projectGraph.GetTopologicallySortedProjects().ToArray();
-                    var success = true;
-                    foreach (ProjectId projectId in projectIds)
-                    {
-                        var project = solution.GetProject(projectId);
-                        customPane.OutputStringThreadSafe($"Compiling {project.Name}\r\n");
-                        Compilation projectCompilation = await project.GetCompilationAsync();
-                        if (projectCompilation == null)
-                        {
-                            customPane.OutputStringThreadSafe($"Error, could not get compilation of {project.Name}\r\n");
-                            continue;
-                        }
-
-                        var diag = projectCompilation.GetDiagnostics().Where(x => x.IsSuppressed == false
-                                                                                  && x.Severity == DiagnosticSeverity.Error);
-
-                        if (diag.Any())
-                        {
-                            success = false;
-                        }
-
-                        foreach (var diagItem in diag)
-                        {
-                            customPane.OutputStringThreadSafe(diagItem.ToString() + "\r\n");
-                        }
-                    }
-
-                    if (success)
-                    {
-                        customPane.OutputStringThreadSafe($"Compilation successful\r\n");
-                    }
-                    else
-                    {
-                        customPane.OutputStringThreadSafe($"Compilation erros found; You can double-click file path in this pane to open it in VS\r\n");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    customPane.OutputStringThreadSafe($"Error: {ex.Message}\r\n");
-                }
-            });
+            IRoslynSolutionAnalysis roslyn = new RoslynSolutionAnalysis();
+            roslyn.CompileFullSolutionInBackgroundAndReportErrors(slnPath, (message) => customPane.OutputStringThreadSafe(message));
         }
+
+        
     }
 }
