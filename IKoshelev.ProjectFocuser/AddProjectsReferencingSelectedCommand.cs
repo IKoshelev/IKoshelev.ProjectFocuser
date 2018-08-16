@@ -16,17 +16,17 @@ namespace IKoshelev.ProjectFocuser
     /// <summary>
     /// Command handler
     /// </summary>
-    internal sealed class AddSelectedProjectsAndReferencesCommand
+    internal sealed class AddProjectsReferencingSelectedCommand
     {
         /// <summary>
         /// Command ID.
         /// </summary>
-        public const int CommandId = 0x0400;
+        public const int CommandId = 0x0600;
 
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
-        public static readonly Guid CommandSet = new Guid("0ad06f0b-7061-43f9-98e3-f839bfee02bb");
+        public static readonly Guid CommandSet = new Guid("B7D79327-196D-48DC-A296-3878FC853D26");
 
         /// <summary>
         /// VS Package that provides this command, not null.
@@ -34,11 +34,11 @@ namespace IKoshelev.ProjectFocuser
         private readonly Package package;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoadAllProjectsCommand"/> class.
+        /// Initializes a new instance of the <see cref="AddProjectsReferencingSelectedCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private AddSelectedProjectsAndReferencesCommand(Package package)
+        private AddProjectsReferencingSelectedCommand(Package package)
         {
             if (package == null)
             {
@@ -59,7 +59,7 @@ namespace IKoshelev.ProjectFocuser
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
-        public static AddSelectedProjectsAndReferencesCommand Instance
+        public static AddProjectsReferencingSelectedCommand Instance
         {
             get;
             private set;
@@ -82,7 +82,7 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="package">Owner package, not null.</param>
         public static void Initialize(Package package)
         {
-            Instance = new AddSelectedProjectsAndReferencesCommand(package);
+            Instance = new AddProjectsReferencingSelectedCommand(package);
         }
 
         private const uint VSITEMID_ROOT = 0xFFFFFFFE;
@@ -96,7 +96,28 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="e">Event args.</param>
         public void MenuItemCallback(object sender, EventArgs e)
         {
-            Util.EnsureSelectedProjReferencesAreLoadedCommand(ServiceProvider, false);
+            var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
+
+            string[] selectedProjectNames = Util.GetSelectedItemNames(dte);
+
+            IRoslynSolutionAnalysis roslyn = new RoslynSolutionAnalysis();
+
+            var allProjectNamesToLoad = roslyn.GetProjectsDirectlyReferencing(dte.Solution.FileName, selectedProjectNames);
+
+            Util.EnsureProjectsLoadedByNames(dte, allProjectNamesToLoad, false);
+
+            string message = "Load projects referencing selected projects directly complete";
+
+            // Show a message box to prove we were here
+            VsShellUtilities.ShowMessageBox(
+                this.ServiceProvider,
+                message,
+                UnloadAllProjectsCommandPackage.MessageBoxName,
+                OLEMSGICON.OLEMSGICON_INFO,
+                OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+
+           
         }
     }
 }

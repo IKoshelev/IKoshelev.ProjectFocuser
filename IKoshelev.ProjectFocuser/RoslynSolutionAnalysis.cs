@@ -12,9 +12,11 @@ namespace IKoshelev.ProjectFocuser
 {
     public interface IRoslynSolutionAnalysis
     {
-        Task<HashSet<string>> GetRecursivelyReferencedProjectGuids(string solutionFilePath, string[] rootProjects);
+        Task<HashSet<string>> GetRecursivelyReferencedProjects(string solutionFilePath, string[] rootProjects);
 
-        Task CompileFullSolutionInBackgroundAndReportErrors(string slnPath, Action<string> writeOutput);
+        HashSet<string> GetProjectsDirectlyReferencing(string solutionFilePath, string[] rootProjectNames);
+
+        Task CompileFullSolutionInBackgroundAndReportErrors(string slnPath, Action<string> writeOutput);      
     }
 
     public class RoslynSolutionAnalysis : IRoslynSolutionAnalysis
@@ -113,7 +115,7 @@ namespace IKoshelev.ProjectFocuser
             });
         }
 
-        public async Task<HashSet<string>> GetRecursivelyReferencedProjectGuids(string solutionFilePath, string[] rootProjectNames)
+        public async Task<HashSet<string>> GetRecursivelyReferencedProjects(string solutionFilePath, string[] rootProjectNames)
         {
             var workspace = MSBuildWorkspace.Create();
 
@@ -127,7 +129,7 @@ namespace IKoshelev.ProjectFocuser
                                 await FillReferencedProjectSetRecursively(solution, projName, references);
                             });
 
-                await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks);
 
             return new HashSet<string>(references.Keys);
         }
@@ -159,6 +161,26 @@ namespace IKoshelev.ProjectFocuser
                             });
 
             await Task.WhenAll(tasks); 
+        }
+
+        public HashSet<string> GetProjectsDirectlyReferencing(string solutionFilePath, string[] rootProjectNames)
+        {
+            var workspace = MSBuildWorkspace.Create();
+
+            var solution = workspace.OpenSolutionAsync(solutionFilePath).Result;
+
+            var rootProjectIds = solution.Projects
+                                        .Where(proj => rootProjectNames.Contains(proj.Name))
+                                        .Select(proj => proj.Id.Id)
+                                        .ToArray();
+
+            var referencingProjects =  solution
+                                            .Projects
+                                            .Where(proj => proj.ProjectReferences.Any(reference => rootProjectIds.Contains(reference.ProjectId.Id)))
+                                            .Distinct()
+                                            .Select(proj => proj.Name);
+
+            return new HashSet<string>(referencingProjects);
         }
     }
 }

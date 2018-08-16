@@ -54,37 +54,38 @@
           If you do not want an image next to your command, remove the Icon node /> -->
       <Button guid="guidUnloadAllProjectsCommandPackageCmdSet" id="UnloadAllProjectsCommandId" priority="0x0100" type="Button">
         <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
-        <Icon guid="guidImages" id="bmpPic1" />
         <Strings>
           <ButtonText>Unload all projects</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidLoadAllProjectsCommandPackageCmdSet" id="LoadAllProjectsCommandId" priority="0x0200" type="Button">
         <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
-        <Icon guid="guidImages" id="bmpPic2" />
         <Strings>
           <ButtonText>Load all projects</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidEnsureOnlySelectedProjReferencesAreLoadedPackageCmdSet" id="EnsureOnlySelectedProjReferencesAreLoadedCommandId" priority="0x0300" type="Button">
         <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
-        <Icon guid="guidImages" id="bmpPic2" />
         <Strings>
           <ButtonText>Only selected projects and their references recursively loaded</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidAddSelectedProjectsAndReferencesCommandCmdSet" id="EnsureAddSelectedProjectsAndReferencesCommandId" priority="0x0400" type="Button">
         <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
-        <Icon guid="guidImages" id="bmpPic2" />
         <Strings>
           <ButtonText>Load selected projects (don't unload unused)</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidCompileAllInBackgroundCommandCmdSet" id="CompileAllInBackgroundCommandId" priority="0x0400" type="Button">
+      <Button guid="guidAddProjectsReferencingSelectedCommandCmdSet" id="AddProjectsReferencingSelectedCommandId" priority="0x0500" type="Button">
         <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
-        <Icon guid="guidImages" id="bmpPic2" />
         <Strings>
-          <ButtonText>Compile full solution in background (errors only, remember to save files)</ButtonText>
+          <ButtonText>Load projects referencing selected projects directly</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidCompileAllInBackgroundCommandCmdSet" id="CompileAllInBackgroundCommandId" priority="0x0600" type="Button">
+        <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
+        <Strings>
+          <ButtonText>Compile full solution in background (errors only, remember to save open files)</ButtonText>
         </Strings>
       </Button>
     </Buttons>
@@ -128,6 +129,11 @@
     <GuidSymbol name="guidCompileAllInBackgroundCommandCmdSet" value="{EABB9F00-FE55-4D18-9791-EF16FB5B0688}">
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="CompileAllInBackgroundCommandId" value="0x0500" />
+    </GuidSymbol>
+
+    <GuidSymbol name="guidAddProjectsReferencingSelectedCommandCmdSet" value="{B7D79327-196D-48DC-A296-3878FC853D26}">
+      <IDSymbol name="MyMenuGroup" value="0x1020" />
+      <IDSymbol name="AddProjectsReferencingSelectedCommandId" value="0x0600" />
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{ff287d7c-84d4-4f0e-b900-e1fcaa51f725}" >

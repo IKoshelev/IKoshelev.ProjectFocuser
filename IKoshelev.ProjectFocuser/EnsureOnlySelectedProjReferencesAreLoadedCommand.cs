@@ -96,53 +96,7 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="e">Event args.</param>
         public void MenuItemCallback(object sender, EventArgs e)
         {
-            EnsureSelectedProjReferencesAreLoadedCommand(ServiceProvider, true);
-        }
-
-        internal static void EnsureSelectedProjReferencesAreLoadedCommand(IServiceProvider provider, bool unloadUnusedProjects)
-        {
-            var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
-
-            string[] selectedProjectNames = Util.GetSelectedItemNames(dte);
-
-            IRoslynSolutionAnalysis roslyn = new RoslynSolutionAnalysis();
-
-            var allGuidsToLoad = roslyn
-                                    .GetRecursivelyReferencedProjectGuids(dte.Solution.FileName, selectedProjectNames)
-                                    .Result;
-
-            var projects = SlnFileParser.GetProjectNamesToGuidsDict(dte.Solution.FileName);
-
-            foreach (var projName in projects.Keys)
-            {
-                var shouldBeLoaded = allGuidsToLoad.Contains(projName);
-
-                var guidStr = projects[projName];
-                var guid = new Guid(guidStr);
-
-                int res = 0;
-                if (shouldBeLoaded)
-                {
-                    res = solutionService4.ReloadProject(ref guid);
-                }
-                else if (unloadUnusedProjects && !shouldBeLoaded)
-                {
-                    res = solutionService4.UnloadProject(ref guid, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser);
-                }
-                //ErrorHandler.ThrowOnFailure(res);
-            }
-
-            string message = "Ensure only selected projects loaded recurisvely complete";
-
-            // Show a message box to prove we were here
-            VsShellUtilities.ShowMessageBox(
-                provider,
-                message,
-                UnloadAllProjectsCommandPackage.MessageBoxName,
-                OLEMSGICON.OLEMSGICON_INFO,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            Util.EnsureSelectedProjReferencesAreLoadedCommand(ServiceProvider, true);
         }
     }
 }
