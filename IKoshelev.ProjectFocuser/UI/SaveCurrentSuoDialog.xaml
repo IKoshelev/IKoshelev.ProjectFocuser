@@ -1,0 +1,116 @@
+﻿<local:BaseDialogWindow
+            Title=".suo file backup"
+             x:Class="IKoshelev.ProjectFocuser.UI.SaveCurrentSuoDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:IKoshelev.ProjectFocuser.UI"
+             mc:Ignorable="d"
+             Width="840"
+             Height="345">
+   
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="150"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <TextBlock 
+            Grid.Row="0" 
+            Grid.Column="0" 
+            FontSize="18" 
+            HorizontalAlignment="Left"
+            Text="Solution path:"></TextBlock>
+        <Button 
+            Grid.Row="0" 
+            Grid.Column="1" 
+            FontSize="14"
+            Command="{Binding Path=OpenSolutionFolderCommand}"
+            >Open solution folder</Button>
+        <TextBox  
+            Grid.Row="1" 
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            FontSize="18" 
+            HorizontalAlignment="Stretch"
+            TextAlignment="Left"
+            IsReadOnly="True"
+            Text="{Binding Path=SlnPathsHelper.SlnFilePath}">
+        </TextBox>
+        <TextBlock 
+            Grid.Row="2" 
+            Grid.Column="0" 
+            FontSize="18" 
+            HorizontalAlignment="Left"
+            Text="Expected .suo path:"></TextBlock>
+        <Button 
+            Grid.Row="2" 
+            Grid.Column="1" 
+            FontSize="14"
+            Command="{Binding Path=OpenExpectedSuoFolderCommand}"
+            >Open expected .suo folder</Button>
+        <TextBox  
+            Grid.Row="3" 
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            FontSize="18" 
+            HorizontalAlignment="Stretch"
+            TextAlignment="Left"
+            IsReadOnly="True"
+            Text="{Binding Path=SlnPathsHelper.ExpectedSuoFolderPath,  Mode=OneWay}">
+        </TextBox>
+        <TextBlock 
+            Grid.Row="4" 
+            Grid.Column="0" 
+            FontSize="18" 
+            HorizontalAlignment="Left"
+            Text="Backup file name (enter without extension):"></TextBlock>
+        <Button 
+            Grid.Row="4" 
+            Grid.Column="1" 
+            FontSize="14"
+            Command="{Binding Path=BackupCurrentSuoFileCommand}"
+            >Save .suo backup for future use</Button>
+        <TextBox  
+            Name="SuoBackupFileNameWithoutExtensionTextBox"
+            Grid.Row="5" 
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            FontSize="18" 
+            HorizontalAlignment="Stretch"
+            TextAlignment="Left"
+            IsReadOnly="{Binding Path=SlnPathsHelper.SuoFileMissing }"
+            Text="{Binding Path=SuoBackupFileNameWithoutExtension, UpdateSourceTrigger=PropertyChanged}">
+        </TextBox>
+        <TextBlock 
+            Grid.Row="6" 
+            Grid.Column="0" 
+            FontSize="18" 
+            HorizontalAlignment="Left"
+            Text="Output:"></TextBlock>
+        <TextBox  
+            Grid.Row="7" 
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            FontSize="18" 
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            TextAlignment="Left"
+            TextWrapping="Wrap"
+            IsReadOnly="True"
+            VerticalScrollBarVisibility="Auto"
+            Text="{Binding Path=UserMessage}">
+        </TextBox>
+    </Grid>
+</local:BaseDialogWindow>

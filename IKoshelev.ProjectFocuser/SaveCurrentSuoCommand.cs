@@ -17,17 +17,17 @@ namespace IKoshelev.ProjectFocuser
     /// <summary>
     /// Command handler
     /// </summary>
-    internal sealed class LoadAllProjectsCommand
+    internal sealed class SaveCurrentSuoCommand
     {
         /// <summary>
         /// Command ID.
         /// </summary>
-        public const int CommandId = 0x0200;
+        public const int CommandId = 0x0700;
 
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
-        public static readonly Guid CommandSet = new Guid("82cb990d-f919-4fbe-8af5-f325882b6bed");
+        public static readonly Guid CommandSet = new Guid("D05D814D-1E38-404A-9B5C-2260CC48416E");
 
         /// <summary>
         /// VS Package that provides this command, not null.
@@ -35,11 +35,11 @@ namespace IKoshelev.ProjectFocuser
         private readonly Package package;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoadAllProjectsCommand"/> class.
+        /// Initializes a new instance of the <see cref="SaveCurrentSuoCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private LoadAllProjectsCommand(Package package)
+        private SaveCurrentSuoCommand(Package package)
         {
             if (package == null)
             {
@@ -60,7 +60,7 @@ namespace IKoshelev.ProjectFocuser
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
-        public static LoadAllProjectsCommand Instance
+        public static SaveCurrentSuoCommand Instance
         {
             get;
             private set;
@@ -83,7 +83,7 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="package">Owner package, not null.</param>
         public static void Initialize(Package package)
         {
-            Instance = new LoadAllProjectsCommand(package);
+            Instance = new SaveCurrentSuoCommand(package);
         }
 
         private const uint VSITEMID_ROOT = 0xFFFFFFFE;
@@ -98,28 +98,10 @@ namespace IKoshelev.ProjectFocuser
         public void MenuItemCallback(object sender, EventArgs e)
         {
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
 
-            var projects = SlnFileParser.GetProjectNamesToGuidsDict(dte.Solution.FileName);
-
-            foreach (var proj in projects.Values)
-            {
-                var guid = new Guid(proj);
-
-                var res = solutionService4.ReloadProject(ref guid);
-                //ErrorHandler.ThrowOnFailure(res);
-            }
-
-            string message = "Load all projects complete";
-
-            // Show a message box to prove we were here
-            VsShellUtilities.ShowMessageBox(
-                this.ServiceProvider,
-                message,
-                UnloadAllProjectsCommandPackage.MessageBoxName,
-                OLEMSGICON.OLEMSGICON_INFO,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            var documentationControl = new UI.SaveCurrentSuoDialog();
+            documentationControl.DataContext = new SaveCurrentSuoDialogVM(dte.Solution.FileName);
+            documentationControl.ShowDialog();
         }
     }
 }

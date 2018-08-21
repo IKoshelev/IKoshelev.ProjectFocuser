@@ -73,6 +73,7 @@ namespace IKoshelev.ProjectFocuser
             AddSelectedProjectsAndReferencesCommand.Initialize(this);
             CompileAllInBackgroundCommand.Initialize(this);
             AddProjectsReferencingSelectedCommand.Initialize(this);
+            SaveCurrentSuoCommand.Initialize(this);
             base.Initialize();
         }
 

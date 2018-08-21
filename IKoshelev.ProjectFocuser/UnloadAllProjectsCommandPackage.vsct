@@ -88,6 +88,12 @@
           <ButtonText>Compile full solution in background (errors only, remember to save open files)</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidSaveCurrentSuoCommandCmdSet" id="SaveCurrentSuoCommandId" priority="0x0700" type="Button">
+        <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
+        <Strings>
+          <ButtonText>Backup current .suo file for preset (remember to save solution before backuping)</ButtonText>
+        </Strings>
+      </Button>
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -134,6 +140,11 @@
     <GuidSymbol name="guidAddProjectsReferencingSelectedCommandCmdSet" value="{B7D79327-196D-48DC-A296-3878FC853D26}">
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="AddProjectsReferencingSelectedCommandId" value="0x0600" />
+    </GuidSymbol>
+
+    <GuidSymbol name="guidSaveCurrentSuoCommandCmdSet" value="{D05D814D-1E38-404A-9B5C-2260CC48416E}">
+      <IDSymbol name="MyMenuGroup" value="0x1020" />
+      <IDSymbol name="SaveCurrentSuoCommandId" value="0x0700" />
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{ff287d7c-84d4-4f0e-b900-e1fcaa51f725}" >
