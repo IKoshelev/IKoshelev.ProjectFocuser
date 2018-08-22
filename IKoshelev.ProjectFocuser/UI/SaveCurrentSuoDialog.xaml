@@ -8,7 +8,7 @@
              xmlns:local="clr-namespace:IKoshelev.ProjectFocuser.UI"
              mc:Ignorable="d"
              Width="840"
-             Height="345">
+             Height="380">
    
     <Grid Margin="10">
         <Grid.RowDefinitions>

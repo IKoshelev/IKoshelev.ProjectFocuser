@@ -50,13 +50,13 @@ namespace IKoshelev.ProjectFocuser
 
                     MaxVisualStudionVersionHasBeenRegistered = true;
 
-                    Util.WriteExtensionOutput($"Using msbuild version from Visual Studio version {maxVisualStudioInstance.Version}, " + 
+                    DteUtil.WriteExtensionOutput($"Using msbuild version from Visual Studio version {maxVisualStudioInstance.Version}, " + 
                                         $"path: {maxVisualStudioInstance.MSBuildPath}");
                 }
             }
             catch (Exception ex)
             {
-                Util.WriteExtensionOutput($"Error during Visual Studio msbuild registration. {ex.Message}" );
+                DteUtil.WriteExtensionOutput($"Error during Visual Studio msbuild registration. {ex.Message}" );
             }
         }
 

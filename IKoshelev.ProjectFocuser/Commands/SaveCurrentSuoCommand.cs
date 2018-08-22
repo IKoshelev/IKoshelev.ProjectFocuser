@@ -5,28 +5,29 @@ using System.Globalization;
 using System.Linq;
 using EnvDTE;
 using EnvDTE80;
+using IKoshelev.ProjectFocuser.UI;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace IKoshelev.ProjectFocuser
+namespace IKoshelev.ProjectFocuser.Commands
 {
     /// <summary>
     /// Command handler
     /// </summary>
-    internal sealed class AddProjectsReferencingSelectedCommand
+    internal sealed class SaveCurrentSuoCommand
     {
         /// <summary>
         /// Command ID.
         /// </summary>
-        public const int CommandId = 0x0600;
+        public const int CommandId = 0x0700;
 
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
-        public static readonly Guid CommandSet = new Guid("B7D79327-196D-48DC-A296-3878FC853D26");
+        public static readonly Guid CommandSet = new Guid("D05D814D-1E38-404A-9B5C-2260CC48416E");
 
         /// <summary>
         /// VS Package that provides this command, not null.
@@ -34,11 +35,11 @@ namespace IKoshelev.ProjectFocuser
         private readonly Package package;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AddProjectsReferencingSelectedCommand"/> class.
+        /// Initializes a new instance of the <see cref="SaveCurrentSuoCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private AddProjectsReferencingSelectedCommand(Package package)
+        private SaveCurrentSuoCommand(Package package)
         {
             if (package == null)
             {
@@ -59,7 +60,7 @@ namespace IKoshelev.ProjectFocuser
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
-        public static AddProjectsReferencingSelectedCommand Instance
+        public static SaveCurrentSuoCommand Instance
         {
             get;
             private set;
@@ -82,7 +83,7 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="package">Owner package, not null.</param>
         public static void Initialize(Package package)
         {
-            Instance = new AddProjectsReferencingSelectedCommand(package);
+            Instance = new SaveCurrentSuoCommand(package);
         }
 
         private const uint VSITEMID_ROOT = 0xFFFFFFFE;
@@ -98,26 +99,9 @@ namespace IKoshelev.ProjectFocuser
         {
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
 
-            string[] selectedProjectNames = Util.GetSelectedItemNames(dte);
-
-            IRoslynSolutionAnalysis roslyn = new RoslynSolutionAnalysis();
-
-            var allProjectNamesToLoad = roslyn.GetProjectsDirectlyReferencing(dte.Solution.FileName, selectedProjectNames);
-
-            Util.EnsureProjectsLoadedByNames(dte, allProjectNamesToLoad, false);
-
-            string message = "Load projects referencing selected projects directly complete";
-
-            // Show a message box to prove we were here
-            VsShellUtilities.ShowMessageBox(
-                this.ServiceProvider,
-                message,
-                UnloadAllProjectsCommandPackage.MessageBoxName,
-                OLEMSGICON.OLEMSGICON_INFO,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-
-           
+            var documentationControl = new UI.SaveCurrentSuoDialog();
+            documentationControl.DataContext = new SaveCurrentSuoDialogVM(dte.Solution.FileName);
+            documentationControl.ShowDialog();
         }
     }
 }

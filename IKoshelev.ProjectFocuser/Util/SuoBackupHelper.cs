@@ -1,13 +1,14 @@
-﻿using System.IO;
+﻿using IKoshelev.ProjectFocuser.Util;
+using System.IO;
 using System.Linq;
 
 namespace IKoshelev.ProjectFocuser
 {
-    public class SolutionPathsHelper
+    public class SuoBackupHelper
     {
         private string slnPath;
 
-        public SolutionPathsHelper(string slnPath)
+        public SuoBackupHelper(string slnPath)
         {
             SlnFilePath = slnPath;
         }
@@ -53,6 +54,15 @@ namespace IKoshelev.ProjectFocuser
             EnsureBackupFolderExists();
             var backupFileFullPath = Path.Combine(ExpectedSuoBackupFolderPath, backupFileNameWithoutExtensions + SuoBackupFileExtension);
             File.Copy(ExpectedSuoFilePath, backupFileFullPath);
+
+            var settingsHelper = new ExtensionSettingsHelper();
+            var settings = settingsHelper.GetSettings();
+
+            settings.SuoBackups.Remove(SlnFilePath);
+
+            var existingBackups = GetExistingSuoBackupNames();
+            settings.SuoBackups.Add(SlnFilePath, existingBackups);
+            settingsHelper.SaveSettings(settings);
         }
     }
 }

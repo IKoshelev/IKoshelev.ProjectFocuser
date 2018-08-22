@@ -18,9 +18,9 @@ namespace IKoshelev.ProjectFocuser.UI
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private SolutionPathsHelper slnPathsHelper;
+        private SuoBackupHelper slnPathsHelper;
 
-        public SolutionPathsHelper SlnPathsHelper
+        public SuoBackupHelper SlnPathsHelper
         {
             get
             {
@@ -65,7 +65,7 @@ namespace IKoshelev.ProjectFocuser.UI
 
         public SaveCurrentSuoDialogVM(string solutionPath)
         {
-            SlnPathsHelper = new SolutionPathsHelper(solutionPath);
+            SlnPathsHelper = new SuoBackupHelper(solutionPath);
             var existingSuoBackups = SlnPathsHelper.GetExistingSuoBackupNames();
             userMessage = "Existing .suo backups: " +
                                (existingSuoBackups.Any()
@@ -194,7 +194,7 @@ namespace IKoshelev.ProjectFocuser.UI
             }
 
             DoWithUserMessage(() => slnPathsHelper.BackupCurrentSuo(SuoBackupFileNameWithoutExtension), 
-                $"{SuoBackupFileNameWithoutExtension + SolutionPathsHelper.SuoBackupFileExtension} backed up.");
+                $"{SuoBackupFileNameWithoutExtension + SuoBackupHelper.SuoBackupFileExtension} backed up.");
 
         } 
     }

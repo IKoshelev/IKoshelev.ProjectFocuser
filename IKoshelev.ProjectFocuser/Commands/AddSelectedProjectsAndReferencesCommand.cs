@@ -3,33 +3,30 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using EnvDTE;
 using EnvDTE80;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace IKoshelev.ProjectFocuser
+namespace IKoshelev.ProjectFocuser.Commands
 {
     /// <summary>
     /// Command handler
     /// </summary>
-    internal sealed class CompileAllInBackgroundCommand
+    internal sealed class AddSelectedProjectsAndReferencesCommand
     {
         /// <summary>
         /// Command ID.
         /// </summary>
-        public const int CommandId = 0x0500;
+        public const int CommandId = 0x0400;
 
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
-        public static readonly Guid CommandSet = new Guid("EABB9F00-FE55-4D18-9791-EF16FB5B0688");
+        public static readonly Guid CommandSet = new Guid("0ad06f0b-7061-43f9-98e3-f839bfee02bb");
 
         /// <summary>
         /// VS Package that provides this command, not null.
@@ -37,11 +34,11 @@ namespace IKoshelev.ProjectFocuser
         private readonly Package package;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CompileAllInBackgroundCommand"/> class.
+        /// Initializes a new instance of the <see cref="LoadAllProjectsCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private CompileAllInBackgroundCommand(Package package)
+        private AddSelectedProjectsAndReferencesCommand(Package package)
         {
             if (package == null)
             {
@@ -62,7 +59,7 @@ namespace IKoshelev.ProjectFocuser
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
-        public static CompileAllInBackgroundCommand Instance
+        public static AddSelectedProjectsAndReferencesCommand Instance
         {
             get;
             private set;
@@ -85,7 +82,7 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="package">Owner package, not null.</param>
         public static void Initialize(Package package)
         {
-            Instance = new CompileAllInBackgroundCommand(package);
+            Instance = new AddSelectedProjectsAndReferencesCommand(package);
         }
 
         private const uint VSITEMID_ROOT = 0xFFFFFFFE;
@@ -99,18 +96,7 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="e">Event args.</param>
         public void MenuItemCallback(object sender, EventArgs e)
         {
-            var componentModel = Package.GetGlobalService(typeof(SComponentModel)) as IComponentModel;
-            var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            var slnPath = dte.Solution.FileName;
-
-            IVsOutputWindowPane customPane = Util.GetThisExtensionOutputPane();
-
-            customPane.OutputStringThreadSafe($"Starting full compilation of {slnPath}\r\n");
-
-            IRoslynSolutionAnalysis roslyn = new RoslynSolutionAnalysis();
-            roslyn.CompileFullSolutionInBackgroundAndReportErrors(slnPath, (message) => customPane.OutputStringThreadSafe(message));
+            DteUtil.EnsureSelectedProjReferencesAreLoadedCommand(ServiceProvider, false);
         }
-
-        
     }
 }

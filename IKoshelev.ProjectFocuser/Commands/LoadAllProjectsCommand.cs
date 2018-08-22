@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace IKoshelev.ProjectFocuser
+namespace IKoshelev.ProjectFocuser.Commands
 {
     /// <summary>
     /// Command handler

@@ -2,29 +2,31 @@
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Globalization;
+using System.Linq;
 using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace IKoshelev.ProjectFocuser
+namespace IKoshelev.ProjectFocuser.Commands
 {
     /// <summary>
     /// Command handler
     /// </summary>
-    internal sealed class UnloadAllProjectsCommand
+    internal sealed class AddProjectsReferencingSelectedCommand
     {
         /// <summary>
         /// Command ID.
         /// </summary>
-        public const int CommandId = 0x0100;
+        public const int CommandId = 0x0600;
 
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
-        public static readonly Guid CommandSet = new Guid("b97309f8-343e-445a-adaa-16db2957a3b2");
+        public static readonly Guid CommandSet = new Guid("B7D79327-196D-48DC-A296-3878FC853D26");
 
         /// <summary>
         /// VS Package that provides this command, not null.
@@ -32,11 +34,11 @@ namespace IKoshelev.ProjectFocuser
         private readonly Package package;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UnloadAllProjectsCommand"/> class.
+        /// Initializes a new instance of the <see cref="AddProjectsReferencingSelectedCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private UnloadAllProjectsCommand(Package package)
+        private AddProjectsReferencingSelectedCommand(Package package)
         {
             if (package == null)
             {
@@ -57,7 +59,7 @@ namespace IKoshelev.ProjectFocuser
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
-        public static UnloadAllProjectsCommand Instance
+        public static AddProjectsReferencingSelectedCommand Instance
         {
             get;
             private set;
@@ -80,8 +82,10 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="package">Owner package, not null.</param>
         public static void Initialize(Package package)
         {
-            Instance = new UnloadAllProjectsCommand(package);
+            Instance = new AddProjectsReferencingSelectedCommand(package);
         }
+
+        private const uint VSITEMID_ROOT = 0xFFFFFFFE;
 
         /// <summary>
         /// This function is the callback used to execute the command when the menu item is clicked.
@@ -94,18 +98,15 @@ namespace IKoshelev.ProjectFocuser
         {
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
 
-            IVsSolution4 solutionService4 = Package.GetGlobalService(typeof(SVsSolution)) as IVsSolution4;
+            string[] selectedProjectNames = DteUtil.GetSelectedItemNames(dte);
 
-            var projects = SlnFileParser.GetProjectNamesToGuidsDict(dte.Solution.FileName);
+            IRoslynSolutionAnalysis roslyn = new RoslynSolutionAnalysis();
 
-            foreach (var proj in projects.Values)
-            {
-                var guid = new Guid(proj);
-                var res = solutionService4.UnloadProject(ref guid, (uint)_VSProjectUnloadStatus.UNLOADSTATUS_UnloadedByUser);
-                //ErrorHandler.ThrowOnFailure(res);
-            }
+            var allProjectNamesToLoad = roslyn.GetProjectsDirectlyReferencing(dte.Solution.FileName, selectedProjectNames);
 
-            string message = "Unload all projects complete";
+            DteUtil.EnsureProjectsLoadedByNames(dte, allProjectNamesToLoad, false);
+
+            string message = "Load projects referencing selected projects directly complete";
 
             // Show a message box to prove we were here
             VsShellUtilities.ShowMessageBox(
@@ -115,7 +116,8 @@ namespace IKoshelev.ProjectFocuser
                 OLEMSGICON.OLEMSGICON_INFO,
                 OLEMSGBUTTON.OLEMSGBUTTON_OK,
                 OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-        }
 
+           
+        }
     }
 }

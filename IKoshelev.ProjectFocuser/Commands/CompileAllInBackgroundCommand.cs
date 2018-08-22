@@ -3,31 +3,33 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using EnvDTE;
 using EnvDTE80;
-using IKoshelev.ProjectFocuser.UI;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace IKoshelev.ProjectFocuser
+namespace IKoshelev.ProjectFocuser.Commands
 {
     /// <summary>
     /// Command handler
     /// </summary>
-    internal sealed class SaveCurrentSuoCommand
+    internal sealed class CompileAllInBackgroundCommand
     {
         /// <summary>
         /// Command ID.
         /// </summary>
-        public const int CommandId = 0x0700;
+        public const int CommandId = 0x0500;
 
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
-        public static readonly Guid CommandSet = new Guid("D05D814D-1E38-404A-9B5C-2260CC48416E");
+        public static readonly Guid CommandSet = new Guid("EABB9F00-FE55-4D18-9791-EF16FB5B0688");
 
         /// <summary>
         /// VS Package that provides this command, not null.
@@ -35,11 +37,11 @@ namespace IKoshelev.ProjectFocuser
         private readonly Package package;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SaveCurrentSuoCommand"/> class.
+        /// Initializes a new instance of the <see cref="CompileAllInBackgroundCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private SaveCurrentSuoCommand(Package package)
+        private CompileAllInBackgroundCommand(Package package)
         {
             if (package == null)
             {
@@ -60,7 +62,7 @@ namespace IKoshelev.ProjectFocuser
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
-        public static SaveCurrentSuoCommand Instance
+        public static CompileAllInBackgroundCommand Instance
         {
             get;
             private set;
@@ -83,7 +85,7 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="package">Owner package, not null.</param>
         public static void Initialize(Package package)
         {
-            Instance = new SaveCurrentSuoCommand(package);
+            Instance = new CompileAllInBackgroundCommand(package);
         }
 
         private const uint VSITEMID_ROOT = 0xFFFFFFFE;
@@ -97,11 +99,18 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="e">Event args.</param>
         public void MenuItemCallback(object sender, EventArgs e)
         {
+            var componentModel = Package.GetGlobalService(typeof(SComponentModel)) as IComponentModel;
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
+            var slnPath = dte.Solution.FileName;
 
-            var documentationControl = new UI.SaveCurrentSuoDialog();
-            documentationControl.DataContext = new SaveCurrentSuoDialogVM(dte.Solution.FileName);
-            documentationControl.ShowDialog();
+            IVsOutputWindowPane customPane = DteUtil.GetThisExtensionOutputPane();
+
+            customPane.OutputStringThreadSafe($"Starting full compilation of {slnPath}\r\n");
+
+            IRoslynSolutionAnalysis roslyn = new RoslynSolutionAnalysis();
+            roslyn.CompileFullSolutionInBackgroundAndReportErrors(slnPath, (message) => customPane.OutputStringThreadSafe(message));
         }
+
+        
     }
 }

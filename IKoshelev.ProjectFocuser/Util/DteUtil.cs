@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace IKoshelev.ProjectFocuser
 {
-    public static class Util
+    public static class DteUtil
     {
         public static bool IsCsproj(this Project proj)
         {
@@ -201,7 +201,7 @@ namespace IKoshelev.ProjectFocuser
         {
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
 
-            string[] selectedProjectNames = Util.GetSelectedItemNames(dte);
+            string[] selectedProjectNames = DteUtil.GetSelectedItemNames(dte);
 
             IRoslynSolutionAnalysis roslyn = new RoslynSolutionAnalysis();
 

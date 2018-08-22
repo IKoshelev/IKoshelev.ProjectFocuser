@@ -11,22 +11,22 @@ using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace IKoshelev.ProjectFocuser
+namespace IKoshelev.ProjectFocuser.Commands
 {
     /// <summary>
     /// Command handler
     /// </summary>
-    internal sealed class AddSelectedProjectsAndReferencesCommand
+    internal sealed class EnsureOnlySelectedProjReferencesAreLoadedCommand
     {
         /// <summary>
         /// Command ID.
         /// </summary>
-        public const int CommandId = 0x0400;
+        public const int CommandId = 0x0300;
 
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
-        public static readonly Guid CommandSet = new Guid("0ad06f0b-7061-43f9-98e3-f839bfee02bb");
+        public static readonly Guid CommandSet = new Guid("281c0281-1dba-43a7-8aae-496cef9936ba");
 
         /// <summary>
         /// VS Package that provides this command, not null.
@@ -38,7 +38,7 @@ namespace IKoshelev.ProjectFocuser
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private AddSelectedProjectsAndReferencesCommand(Package package)
+        private EnsureOnlySelectedProjReferencesAreLoadedCommand(Package package)
         {
             if (package == null)
             {
@@ -59,7 +59,7 @@ namespace IKoshelev.ProjectFocuser
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
-        public static AddSelectedProjectsAndReferencesCommand Instance
+        public static EnsureOnlySelectedProjReferencesAreLoadedCommand Instance
         {
             get;
             private set;
@@ -82,7 +82,7 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="package">Owner package, not null.</param>
         public static void Initialize(Package package)
         {
-            Instance = new AddSelectedProjectsAndReferencesCommand(package);
+            Instance = new EnsureOnlySelectedProjReferencesAreLoadedCommand(package);
         }
 
         private const uint VSITEMID_ROOT = 0xFFFFFFFE;
@@ -96,7 +96,7 @@ namespace IKoshelev.ProjectFocuser
         /// <param name="e">Event args.</param>
         public void MenuItemCallback(object sender, EventArgs e)
         {
-            Util.EnsureSelectedProjReferencesAreLoadedCommand(ServiceProvider, false);
+            DteUtil.EnsureSelectedProjReferencesAreLoadedCommand(ServiceProvider, true);
         }
     }
 }
