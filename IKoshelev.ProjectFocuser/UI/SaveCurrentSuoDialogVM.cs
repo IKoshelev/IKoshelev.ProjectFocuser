@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace IKoshelev.ProjectFocuser.UI
@@ -193,8 +194,12 @@ namespace IKoshelev.ProjectFocuser.UI
                 return; 
             }
 
-            DoWithUserMessage(() => slnPathsHelper.BackupCurrentSuo(SuoBackupFileNameWithoutExtension), 
-                $"{SuoBackupFileNameWithoutExtension + SuoBackupHelper.SuoBackupFileExtension} backed up.");
+            DoWithUserMessage(() =>
+            {
+                slnPathsHelper.BackupCurrentSuo(SuoBackupFileNameWithoutExtension);
+                MessageBox.Show("Backup done", "Done", MessageBoxButton.OK, MessageBoxImage.None);
+            }, 
+            $"{SuoBackupFileNameWithoutExtension + SuoBackupHelper.SuoBackupFileExtension} backed up.");
 
         } 
     }

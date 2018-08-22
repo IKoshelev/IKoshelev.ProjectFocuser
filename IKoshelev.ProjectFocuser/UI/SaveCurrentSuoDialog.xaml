@@ -1,5 +1,5 @@
 ﻿<local:BaseDialogWindow
-            Title=".suo file backup"
+             Title=".suo file backup"
              x:Class="IKoshelev.ProjectFocuser.UI.SaveCurrentSuoDialog"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,7 +8,7 @@
              xmlns:local="clr-namespace:IKoshelev.ProjectFocuser.UI"
              mc:Ignorable="d"
              Width="840"
-             Height="380">
+             Height="390">
    
     <Grid Margin="10">
         <Grid.RowDefinitions>

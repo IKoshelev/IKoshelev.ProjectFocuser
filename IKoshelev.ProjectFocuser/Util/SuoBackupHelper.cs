@@ -64,5 +64,11 @@ namespace IKoshelev.ProjectFocuser
             settings.SuoBackups.Add(SlnFilePath, existingBackups);
             settingsHelper.SaveSettings(settings);
         }
+
+        public void RestoreSuoBackup(string suoBackupFileNameWithExtension)
+        {
+            var backupFileFullPath = Path.Combine(ExpectedSuoBackupFolderPath, suoBackupFileNameWithExtension);
+            File.Copy(backupFileFullPath, ExpectedSuoFilePath, true);
+        }
     }
 }
