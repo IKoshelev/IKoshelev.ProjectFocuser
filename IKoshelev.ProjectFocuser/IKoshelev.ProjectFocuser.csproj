@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Commands\AddProjectsReferencingSelectedCommand.cs" />
     <Compile Include="Commands\AddSelectedProjectsAndReferencesCommand.cs" />
+    <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\CompileAllInBackgroundCommand.cs" />
     <Compile Include="Commands\EnsureOnlySelectedProjReferencesAreLoadedCommand.cs" />
     <Compile Include="Commands\RestorePresavedSuoCommand.cs" />
@@ -79,7 +80,7 @@
     <Compile Include="UI\SaveCurrentSuoDialogVM.cs" />
     <Compile Include="Util\SuoBackupHelper.cs" />
     <Compile Include="Commands\UnloadAllProjectsCommand.cs" />
-    <Compile Include="UnloadAllProjectsCommandPackage.cs" />
+    <Compile Include="ProjectFocuserCommandPackage.cs" />
     <Compile Include="Util\DteUtil.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -94,10 +95,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />
-    <Content Include="Resources\UnloadAllProjectsCommand.png" />
-    <Content Include="Resources\UnloadAllProjectsCommandPackage.ico" />
+    <Content Include="Resources\ProjectFocuserCommand.png" />
+    <Content Include="Resources\ProjectFocuserCommandPackage.ico" />
     <Content Include="stylesheet.css" />
-    <VSCTCompile Include="UnloadAllProjectsCommandPackage.vsct">
+    <VSCTCompile Include="ProjectFocuserCommandPackage.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
   </ItemGroup>

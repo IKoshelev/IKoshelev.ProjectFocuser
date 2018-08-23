@@ -29,21 +29,21 @@ namespace IKoshelev.ProjectFocuser
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [Guid(UnloadAllProjectsCommandPackage.PackageGuidString)]
+    [Guid(ProjectFocuserCommandPackage.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
-    public sealed class UnloadAllProjectsCommandPackage : Package
+    public sealed class ProjectFocuserCommandPackage : Package
     {
         internal const string MessageBoxName = "ProjectFocuser";
 
         /// <summary>
-        /// UnloadAllProjectsCommandPackage GUID string.
+        /// ProjectFocuserCommandPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "7d103cfa-2cc4-46e2-96e2-4ff6512d4a62";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnloadAllProjectsCommand"/> class.
         /// </summary>
-        public UnloadAllProjectsCommandPackage()
+        public ProjectFocuserCommandPackage()
         {
             // Inside this method you can place any initialization code that does not require
             // any Visual Studio service because at this point the package object is created but

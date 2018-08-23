@@ -217,7 +217,7 @@ namespace IKoshelev.ProjectFocuser
             VsShellUtilities.ShowMessageBox(
                 provider,
                 message,
-                UnloadAllProjectsCommandPackage.MessageBoxName,
+                ProjectFocuserCommandPackage.MessageBoxName,
                 OLEMSGICON.OLEMSGICON_INFO,
                 OLEMSGBUTTON.OLEMSGBUTTON_OK,
                 OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);

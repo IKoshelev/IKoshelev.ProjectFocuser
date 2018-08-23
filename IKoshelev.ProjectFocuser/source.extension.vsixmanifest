@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="IKoshelev.ProjectFocuser.3a05a4c7-1b5c-42fc-b0f8-476159301e76" Version="1.09" Language="en-US" Publisher="Ivan Koshelev" />
+        <Identity Id="IKoshelev.ProjectFocuser.3a05a4c7-1b5c-42fc-b0f8-476159301e76" Version="1.10" Language="en-US" Publisher="Ivan Koshelev" />
         <DisplayName>IKoshelev.ProjectFocuser</DisplayName>
         <Description xml:space="preserve">Extension for large C# solutions - choose a project, and only load projects it references (directly or indirectly).</Description>
         <MoreInfo>https://github.com/IKoshelev/IKoshelev.ProjectFocuser</MoreInfo>
