@@ -36,11 +36,34 @@
          group as the part of a menu contained between two lines. The parent of a group
          must be a menu. -->
     <Groups>
-      <Group guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+      <Group guid="guidProjectFocuserCmdSet" id="TopLevelMyMenuGroup" priority="0x0600">
+          <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+      </Group>
+      <Group guid="guidProjectFocuserCmdSet" id="SubMenuProjectLoadUnloadGroup" priority="0x0000">
+        <Parent guid="guidProjectFocuserCmdSet" id="SubMenuProjectLoadUnload"/>
+      </Group>
+      <Group guid="guidProjectFocuserCmdSet" id="SubMenuSuoBackupRestoreGroup" priority="0x0000">
+        <Parent guid="guidProjectFocuserCmdSet" id="SubMenuSuoBackupRestore"/>
       </Group>
     </Groups>
 
+    <Menus>
+      <Menu guid="guidProjectFocuserCmdSet" id="SubMenuProjectLoadUnload" priority="0x0200" type="Menu">  
+          <Parent guid="guidProjectFocuserCmdSet" id="TopLevelMyMenuGroup"/>  
+          <Strings>  
+              <ButtonText>Load/unload</ButtonText>  
+              <CommandName>LoadUnload</CommandName>  
+          </Strings>  
+      </Menu>  
+          <Menu guid="guidProjectFocuserCmdSet" id="SubMenuSuoBackupRestore" priority="0x0400" type="Menu">  
+          <Parent guid="guidProjectFocuserCmdSet" id="TopLevelMyMenuGroup"/>  
+          <Strings>  
+              <ButtonText>Suo backup/restore</ButtonText>  
+              <CommandName>SuoBackupRestore</CommandName>  
+          </Strings>  
+      </Menu>  
+    </Menus>
+    
     <!--Buttons section. -->
     <!--This section defines the elements the user can interact with, like a menu command or a button
         or combo box in a toolbar. -->
@@ -52,54 +75,61 @@
               <CommandFlag>DefaultInvisible</CommandFlag>
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node /> -->
-      <Button guid="guidUnloadAllProjectsCommandPackageCmdSet" id="UnloadAllProjectsCommandId" priority="0x0100" type="Button">
-        <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
+      
+      <Button guid="guidProjectFocuserCmdSet" id="EnsureOnlySelectedProjReferencesAreLoadedCommandId" priority="0x0100" type="Button">
+        <Parent guid="guidProjectFocuserCmdSet" id="TopLevelMyMenuGroup" />
+        <Strings>
+          <ButtonText>Switch to only selected projects and their recursive references loaded</ButtonText>
+        </Strings>
+      </Button>       
+      
+      <!-- Load/Unload sumbenu -->
+      <Button guid="guidProjectFocuserCmdSet" id="UnloadAllProjectsCommandId" priority="0x0100" type="Button">
+        <Parent guid="guidProjectFocuserCmdSet" id="SubMenuProjectLoadUnloadGroup" />
         <Strings>
           <ButtonText>Unload all projects</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidLoadAllProjectsCommandPackageCmdSet" id="LoadAllProjectsCommandId" priority="0x0200" type="Button">
-        <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
+      <Button guid="guidProjectFocuserCmdSet" id="LoadAllProjectsCommandId" priority="0x0200" type="Button">
+        <Parent guid="guidProjectFocuserCmdSet" id="SubMenuProjectLoadUnloadGroup" />
         <Strings>
           <ButtonText>Load all projects</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidEnsureOnlySelectedProjReferencesAreLoadedPackageCmdSet" id="EnsureOnlySelectedProjReferencesAreLoadedCommandId" priority="0x0300" type="Button">
-        <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
-        <Strings>
-          <ButtonText>Only selected projects and their references recursively loaded</ButtonText>
-        </Strings>
-      </Button>
-      <Button guid="guidAddSelectedProjectsAndReferencesCommandCmdSet" id="EnsureAddSelectedProjectsAndReferencesCommandId" priority="0x0400" type="Button">
-        <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
+      <Button guid="guidProjectFocuserCmdSet" id="AddSelectedProjectsAndReferencesCommandId" priority="0x0300" type="Button">
+        <Parent guid="guidProjectFocuserCmdSet" id="SubMenuProjectLoadUnloadGroup" />
         <Strings>
           <ButtonText>Load selected projects (don't unload unused)</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidAddProjectsReferencingSelectedCommandCmdSet" id="AddProjectsReferencingSelectedCommandId" priority="0x0500" type="Button">
-        <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
+      <Button guid="guidProjectFocuserCmdSet" id="AddProjectsReferencingSelectedCommandId" priority="0x0400" type="Button">
+        <Parent guid="guidProjectFocuserCmdSet" id="SubMenuProjectLoadUnloadGroup" />
         <Strings>
           <ButtonText>Load projects referencing selected projects directly</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidCompileAllInBackgroundCommandCmdSet" id="CompileAllInBackgroundCommandId" priority="0x0600" type="Button">
-        <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
+      
+      <Button guid="guidProjectFocuserCmdSet" id="CompileAllInBackgroundCommandId" priority="0x0600" type="Button">
+        <Parent guid="guidProjectFocuserCmdSet" id="TopLevelMyMenuGroup" />
         <Strings>
           <ButtonText>Compile full solution in background (errors only, remember to save open files)</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidSaveCurrentSuoCommandCmdSet" id="SaveCurrentSuoCommandId" priority="0x0700" type="Button">
-        <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
+      
+       <!-- Save/Restore suo submenu -->
+      <Button guid="guidProjectFocuserCmdSet" id="SaveCurrentSuoCommandId" priority="0x0700" type="Button">
+        <Parent guid="guidProjectFocuserCmdSet" id="SubMenuSuoBackupRestoreGroup" />
         <Strings>
           <ButtonText>Backup current .suo file for preset (remember to save solution before backuping)</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidRestorePresavedSuoCommandCmdSet" id="RestorePresavedSuoCommandId" priority="0x0800" type="Button">
-        <Parent guid="guidUnloadAllProjectsCommandPackageCmdSet" id="MyMenuGroup" />
+      <Button guid="guidProjectFocuserCmdSet" id="RestorePresavedSuoCommandId" priority="0x0800" type="Button">
+        <Parent guid="guidProjectFocuserCmdSet" id="SubMenuSuoBackupRestoreGroup" />
         <Strings>
           <ButtonText>Restore backed-up .suo file (to choose settings prior to solution opening)</ButtonText>
         </Strings>
       </Button>
+    
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -118,44 +148,21 @@
     <GuidSymbol name="guidUnloadAllProjectsCommandPackage" value="{7d103cfa-2cc4-46e2-96e2-4ff6512d4a62}" />
 
     <!-- This is the guid used to group the menu commands together -->
-    <GuidSymbol name="guidUnloadAllProjectsCommandPackageCmdSet" value="{b97309f8-343e-445a-adaa-16db2957a3b2}">
-      <IDSymbol name="MyMenuGroup" value="0x1020" />
+    <GuidSymbol name="guidProjectFocuserCmdSet" value="{b97309f8-343e-445a-adaa-16db2957a3b2}"> 
+      <IDSymbol name="TopLevelMyMenuGroup" value="0x1020" />
+      <IDSymbol name="SubMenuProjectLoadUnload" value="0x1030" />
+      <IDSymbol name="SubMenuProjectLoadUnloadGroup" value="0x1150"/>
+      <IDSymbol name="SubMenuSuoBackupRestore" value="0x2030" />
+      <IDSymbol name="SubMenuSuoBackupRestoreGroup" value="0x2150"/>
+      <IDSymbol name="cmdidTestSubCommand" value="0x1000" />
       <IDSymbol name="UnloadAllProjectsCommandId" value="0x0100" />
-    </GuidSymbol>
-
-    <GuidSymbol name="guidLoadAllProjectsCommandPackageCmdSet" value="{82cb990d-f919-4fbe-8af5-f325882b6bed}">
-      <IDSymbol name="MyMenuGroup" value="0x1020" />
-      <IDSymbol name="LoadAllProjectsCommandId" value="0x0200" />
-    </GuidSymbol>
-
-    <GuidSymbol name="guidEnsureOnlySelectedProjReferencesAreLoadedPackageCmdSet" value="{281c0281-1dba-43a7-8aae-496cef9936ba}">
-      <IDSymbol name="MyMenuGroup" value="0x1020" />
-      <IDSymbol name="EnsureOnlySelectedProjReferencesAreLoadedCommandId" value="0x0300" />
-    </GuidSymbol>
-
-    <GuidSymbol name="guidAddSelectedProjectsAndReferencesCommandCmdSet" value="{0ad06f0b-7061-43f9-98e3-f839bfee02bb}">
-      <IDSymbol name="MyMenuGroup" value="0x1020" />
-      <IDSymbol name="EnsureAddSelectedProjectsAndReferencesCommandId" value="0x0400" />
-    </GuidSymbol>
-
-    <GuidSymbol name="guidCompileAllInBackgroundCommandCmdSet" value="{EABB9F00-FE55-4D18-9791-EF16FB5B0688}">
-      <IDSymbol name="MyMenuGroup" value="0x1020" />
+      <IDSymbol name="LoadAllProjectsCommandId" value="0x0200" />    
+      <IDSymbol name="EnsureOnlySelectedProjReferencesAreLoadedCommandId" value="0x300" />
+      <IDSymbol name="AddSelectedProjectsAndReferencesCommandId" value="0x400" />
       <IDSymbol name="CompileAllInBackgroundCommandId" value="0x0500" />
-    </GuidSymbol>
-
-    <GuidSymbol name="guidAddProjectsReferencingSelectedCommandCmdSet" value="{B7D79327-196D-48DC-A296-3878FC853D26}">
-      <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="AddProjectsReferencingSelectedCommandId" value="0x0600" />
-    </GuidSymbol>
-
-    <GuidSymbol name="guidSaveCurrentSuoCommandCmdSet" value="{D05D814D-1E38-404A-9B5C-2260CC48416E}">
-      <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="SaveCurrentSuoCommandId" value="0x0700" />
-    </GuidSymbol>
-    
-    <GuidSymbol name="guidRestorePresavedSuoCommandCmdSet" value="{B83293E1-F1F0-4F45-A3C4-F62FEFB9408E}">
-      <IDSymbol name="MyMenuGroup" value="0x1020" />
-      <IDSymbol name="RestorePresavedSuoCommandId" value="0x0800" />
+      <IDSymbol name="RestorePresavedSuoCommandId" value="0x0800" />  
     </GuidSymbol>
 
     <GuidSymbol name="guidImages" value="{ff287d7c-84d4-4f0e-b900-e1fcaa51f725}" >

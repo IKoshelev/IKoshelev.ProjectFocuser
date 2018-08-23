@@ -28,7 +28,7 @@ namespace IKoshelev.ProjectFocuser.Commands
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
-        public static readonly Guid CommandSet = new Guid("B83293E1-F1F0-4F45-A3C4-F62FEFB9408E");
+        public static readonly Guid CommandSet = new Guid("b97309f8-343e-445a-adaa-16db2957a3b2");
 
         /// <summary>
         /// VS Package that provides this command, not null.
